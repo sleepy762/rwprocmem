@@ -6,6 +6,7 @@
 typedef struct mem_region_t
 {
     std::string addressRange;
+    unsigned long rangeLength;
     std::string perms;
     std::string pathName;
 } mem_region_t;
@@ -26,5 +27,6 @@ private:
     std::vector<mem_region_t> m_memRegions;
 
     void UpdateMemoryRegions();
+    unsigned long CalculateAddressRangeLength(const std::string& rangeStr);
 };
 

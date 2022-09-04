@@ -28,10 +28,16 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
     else if (tokens[0] == "map")
     {
         std::vector<mem_region_t> memRegs = proc.GetMemoryRegions();
+        
+        if (memRegs.size() == 0)
+        {
+            std::cout << "No memory regions were found.\n";
+        }
 
         for (size_t i = 0; i < memRegs.size(); i++)
         {
             std::cout << memRegs[i].addressRange << '\t' <<
+                memRegs[i].rangeLength << " bytes\t" <<
                 memRegs[i].perms << '\t' <<
                 memRegs[i].pathName << '\n';
         }

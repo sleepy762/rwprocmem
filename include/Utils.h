@@ -4,6 +4,6 @@
 
 namespace Utils
 {
-    std::vector<std::string> SplitString(std::string str, char delim);
+    std::vector<std::string> SplitString(const std::string& str, const char delim);
 }
 

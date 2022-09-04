@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string>
 
-std::vector<std::string> Utils::SplitString(std::string str, char delim)
+std::vector<std::string> Utils::SplitString(const std::string& str, const char delim)
 {
     std::vector<std::string> tokens;
     

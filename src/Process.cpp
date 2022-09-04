@@ -49,7 +49,7 @@ void Process::UpdateMemoryRegions()
     std::string line;
     while (std::getline(processMap, line))
     {
-        mem_region_t reg = { "", "", "" }; // Empty initialization
+        mem_region_t reg = { "", 0, "", "" }; // Empty initialization
         std::vector<std::string> tokens = Utils::SplitString(line, ' ');
         
         // The /proc/pid/maps file always has the same pattern, therefore:
@@ -62,6 +62,9 @@ void Process::UpdateMemoryRegions()
         
         // Set the memory address range
         reg.addressRange = tokens[0];
+
+        // Calculate the address range length
+        reg.rangeLength = this->CalculateAddressRangeLength(tokens[0]);
 
         // Set the perms string
         reg.perms = tokens[1];
@@ -80,6 +83,22 @@ void Process::UpdateMemoryRegions()
 
         this->m_memRegions.push_back(reg);
     }
+}
+
+// This method is specific to this class, hence the parameter
+// It is used to calculate the length of the address range when reading
+// address regions from a /proc/pid/maps file
+unsigned long Process::CalculateAddressRangeLength(const std::string& rangeStr)
+{
+    // The delimiter in the address range is '-', as seen in any maps file
+    std::vector<std::string> tokens = Utils::SplitString(rangeStr, '-');
+
+    // Now tokens[0] is the start address, tokens[1] is the end address
+    // The addresses are in hexadecimal
+    unsigned long startAddr = std::stoul(tokens[0], nullptr, 16);
+    unsigned long endAddr = std::stoul(tokens[1], nullptr, 16);
+
+    return endAddr - startAddr;
 }
 
 std::vector<mem_region_t> Process::GetMemoryRegions()
