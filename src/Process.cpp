@@ -109,10 +109,6 @@ pid_t Process::GetCurrentPid() const
 
 std::vector<mem_region_t> Process::GetMemoryRegions()
 {
-    if (this->m_pid == 0)
-    {
-        throw std::runtime_error("A process pid has not been given. (see command 'pid')");
-    }
     // Make sure we are returning the most up to date memory region structs
     this->UpdateMemoryRegions();
     return this->m_memRegions;

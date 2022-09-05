@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "cmds/ICommand.h"
 #include "cmds/PidCommand.h"
+#include "cmds/MapCommand.h"
 
 using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
 using CommandHelpFunc = const char* (*)();
@@ -20,7 +21,8 @@ struct cmd_funcs_t
 
 static const std::unordered_map<std::string , cmd_funcs_t> cmdMap =
 {
-    { "pid", { &ICommand<PidCommand>::Main, &ICommand<PidCommand>::Help } }
+    { "pid", { &ICommand<PidCommand>::Main, &ICommand<PidCommand>::Help } },
+    { "map", { &ICommand<MapCommand>::Main, &ICommand<MapCommand>::Help } }
 };
 
 
@@ -41,7 +43,7 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
     {
         CommandProcessor::HelpCommand(tokens);
     }
-    else
+    else if (command != "exit")
     {
         auto commandFuncIt = cmdMap.find(command);
         if (commandFuncIt != cmdMap.end())
@@ -53,23 +55,6 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
             std::cerr << "Command " << command << " not found.\n";
         }
     }
-    // else if (tokens[0] == "map")
-    // {
-    //     std::vector<mem_region_t> memRegs = proc.GetMemoryRegions();
-    //     
-    //     if (memRegs.size() == 0)
-    //     {
-    //         std::cout << "No memory regions were found.\n";
-    //     }
-    //
-    //     for (size_t i = 0; i < memRegs.size(); i++)
-    //     {
-    //         std::cout << memRegs[i].addressRange << '\t' <<
-    //             memRegs[i].rangeLength << " bytes\t" <<
-    //             memRegs[i].perms << '\t' <<
-    //             memRegs[i].pathName << '\n';
-    //     }
-    // }
 }
 
 void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
