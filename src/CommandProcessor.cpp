@@ -5,6 +5,25 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <unordered_map>
+#include "cmds/ICommand.h"
+#include "cmds/PidCommand.h"
+
+using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
+using CommandHelpFunc = void (*)();
+
+struct cmd_funcs_t
+{
+    CommandMainFunc MainFunc;
+    CommandHelpFunc HelpFunc;
+};
+
+std::unordered_map<const char*, cmd_funcs_t> cmdMap =
+{
+    { "pid", { &ICommand<PidCommand>::Main, &ICommand<PidCommand>::Help } }
+};
+
+
 void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
 {
     // Check if the input is empty
@@ -42,5 +61,10 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
                 memRegs[i].pathName << '\n';
         }
     }
+}
+
+void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
+{
+    
 }
 

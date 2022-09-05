@@ -19,6 +19,7 @@ Process::Process(pid_t pid)
 
 Process::~Process() {}
 
+
 void Process::SetProcessPid(pid_t pid)
 {
     // Ensure the given pid is valid
@@ -28,7 +29,7 @@ void Process::SetProcessPid(pid_t pid)
     }
     else
     {
-        throw std::runtime_error("Invalid pid.");
+        throw std::invalid_argument("Invalid pid.");
     }
 }
 

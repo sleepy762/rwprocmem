@@ -3,12 +3,12 @@
 #include <iostream>
 #include "CommandProcessor.h"
 #include "Process.h"
-#include "version.h"
 #include <unistd.h>
 
 int main()
 {
-    std::cout << RWPROCMEM_STR << ' ' << RWPROCMEM_VERSION_STR << '\n';
+    std::cout << "rwprocmem v0.0.1\n";
+    std::cout << "Type 'help' to see a list of commands.\n";
     if (getuid() != 0)
     {
         std::cout << "WARNING: not running as root, reading and writing to the memory of certain processes may not work.\n";
