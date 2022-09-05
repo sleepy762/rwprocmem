@@ -20,6 +20,7 @@ public:
 
     void SetProcessPid(pid_t pid);
 
+    pid_t GetCurrentPid() const;
     std::vector<mem_region_t> GetMemoryRegions(); 
 
 private:

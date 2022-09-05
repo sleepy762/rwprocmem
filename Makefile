@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -Wextra -pedantic -Iinclude -O2
 
-SRCS = $(wildcard src/*.cpp)
+SRCS = $(wildcard src/*.cpp) $(wildcard src/cmds/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 TARGET = rwprocmem
 
@@ -17,5 +17,5 @@ $(TARGET): $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f src/*.o $(TARGET)
+	rm -f $(OBJS) $(TARGET)
 

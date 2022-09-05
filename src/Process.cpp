@@ -102,6 +102,11 @@ unsigned long Process::CalculateAddressRangeLength(const std::string& rangeStr)
     return endAddr - startAddr;
 }
 
+pid_t Process::GetCurrentPid() const
+{
+    return this->m_pid;
+}
+
 std::vector<mem_region_t> Process::GetMemoryRegions()
 {
     if (this->m_pid == 0)

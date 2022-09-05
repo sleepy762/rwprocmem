@@ -11,9 +11,9 @@ public:
     {
         T::Main(proc, args);
     }
-    static void Help()
+    static const char* Help()
     {
-        T::Help();
+        return T::Help();
     }
 };
 
