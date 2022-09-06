@@ -38,7 +38,7 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         catch (const std::exception& e)
         {
-            throw std::invalid_argument("Invalid pid.");
+            throw std::invalid_argument(args[0] + ": Invalid pid.");
         }
         
         std::cout << "Process " << newPid << ": " << Utils::GetProcessCommand(newPid) << '\n';

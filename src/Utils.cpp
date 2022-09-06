@@ -1,10 +1,12 @@
 #include "Utils.h"
+#include <cstdint>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <algorithm>
 #include <fstream>
 #include <cstring>
+#include <sys/uio.h>
 
 std::vector<std::string> Utils::SplitString(const std::string& str, const char delim)
 {
@@ -69,5 +71,57 @@ std::string Utils::GetProcessCommand(pid_t pid)
         commStr += ']';
     }
     return commStr;
+}
+
+std::vector<uint8_t> Utils::ReadProcessMemory(pid_t pid, unsigned long baseAddr,
+        unsigned long length)
+{
+    iovec local[1];
+    local[0].iov_base = new uint8_t[length];
+    local[0].iov_len = length;
+
+    iovec remote[1];
+    remote[0].iov_base = (void*)baseAddr;
+    remote[0].iov_len = length;
+
+    ssize_t nread = process_vm_readv(pid, local, 1, remote, 1, 0);
+    if (nread < 0)
+    {
+        std::string errMsg;
+        switch (errno)
+        {
+            case EFAULT:
+                errMsg = "Memory address is outside the accessible space of the process.";
+                break;
+
+            case EINVAL:
+                errMsg = "Invalid arguments.";
+                break;
+
+            case ENOMEM:
+                errMsg = "Failed to allocate memory for iovec structures.";
+                break;
+
+            case EPERM:
+                errMsg = "Permission denied.";
+                break;
+
+            case ESRCH:
+                errMsg = "Invalid PID (process doesn't exist).";
+                break;
+
+            default:
+                errMsg = "Unknown error.";
+                break;
+        }
+        delete[] (uint8_t*)local[0].iov_base;
+        throw std::runtime_error(errMsg);
+    }
+
+    std::vector<uint8_t> dataVec;
+    // Copy the data given from process_vm_readv into the byte vector
+    dataVec.insert(dataVec.end(), &((uint8_t*)local[0].iov_base)[0], &((uint8_t*)local[0].iov_base)[length]);
+
+    return dataVec;
 }
 

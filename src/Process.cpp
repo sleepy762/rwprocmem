@@ -7,10 +7,6 @@
 #include <fstream>
 #include <cstring>
 
-// This is the minimum amount of fields in the maps file
-// when there is no "pathname" field
-#define MIN_AMOUNT_OF_FIELDS (5)
-
 Process::Process()
 {
     this->m_pid = 0;
@@ -73,7 +69,11 @@ void Process::UpdateMemoryRegions()
 
         // Set the perms string
         reg.perms = tokens[1];
-        
+    
+        // This is the minimum amount of fields in the maps file
+        // when there is no "pathname" field
+        constexpr int MIN_AMOUNT_OF_FIELDS = 5;
+
         // We have to make sure that the pathname token exists (sometimes it doesn't)
         if (tokens.size() > MIN_AMOUNT_OF_FIELDS)
         {
