@@ -24,8 +24,8 @@ std::vector<std::string> Utils::SplitString(const std::string& str, const char d
     return tokens;
 }
 
-// Returns cmdline if it's not empty
-// Otherwise returns comm
+// Returns the contents of /proc/.../cmdline if it's not empty
+// Otherwise returns the contents of /proc/.../comm
 std::string Utils::GetProcessCommand(pid_t pid)
 {
     std::string basePath = "/proc/" + std::to_string(pid);

@@ -20,7 +20,11 @@ int main()
     while (input != "exit")
     {
         std::cout << "> ";
-        std::getline(std::cin, input);
+        if (!std::getline(std::cin, input))
+        {
+            break;
+        }
+
         try
         {
             CommandProcessor::ProcessCommand(input, proc);
