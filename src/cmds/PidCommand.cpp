@@ -1,6 +1,8 @@
 #include "cmds/PidCommand.h"
 #include <stdexcept>
 #include <iostream>
+#include <string>
+#include "Utils.h"
 
 void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
@@ -11,7 +13,7 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         pidArg = args.at(1);
     }
     catch (const std::out_of_range&) {}
-
+    
     // If not, print the current pid in use
     if (pidArg == "")
     {
@@ -23,7 +25,7 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         else
         {
-            std::cout << "Currently using pid: " << currPid << '\n';
+            std::cout << "Process " << currPid << ": " << Utils::GetProcessCommand(currPid) << '\n';
         }
     }
     else // Check if it's a valid pid and use it
@@ -38,8 +40,11 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         {
             throw std::invalid_argument("Invalid pid.");
         }
+        
+        std::cout << "Process " << newPid << ": " << Utils::GetProcessCommand(newPid) << '\n';
 
         proc.SetProcessPid(newPid);
+        std::cout << "Pid set to " << newPid << ".\n";
     }
 }
 

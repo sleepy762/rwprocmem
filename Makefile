@@ -1,4 +1,6 @@
 CC = g++
+LD = g++
+
 CFLAGS = -Wall -Wextra -pedantic -Iinclude -O2
 
 SRCS = $(wildcard src/*.cpp) $(wildcard src/cmds/*.cpp)
@@ -9,7 +11,7 @@ all: $(OBJS) $(TARGET)
 
 # Links the object files into an executable
 $(TARGET): $(OBJS)
-	$(CC) $^ -o $@
+	$(LD) $^ -o $@
 
 # Compiles every source file into an object file
 %.o: %.cpp

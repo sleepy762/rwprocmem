@@ -44,7 +44,7 @@ void Process::UpdateMemoryRegions()
 
     if (!processMap.is_open())
     {
-        std::string errMsg = "Failed to open the maps for pid " + std::to_string(this->m_pid)
+        const std::string errMsg = "Failed to open the maps for pid " + std::to_string(this->m_pid)
             + ": " + strerror(errno);
         throw std::runtime_error(errMsg);
     }
