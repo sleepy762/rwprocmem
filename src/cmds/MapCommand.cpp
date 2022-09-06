@@ -29,7 +29,7 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
                 memRegions[i].perms << '\t' <<
                 memRegions[i].pathName << '\n';
         }
-        std::cout << "Total: " << totalMem << " bytes.\n";
+        std::cout << "\nTotal: " << totalMem << " bytes in " << memRegions.size() << " memory regions.\n";
     }
 }
 

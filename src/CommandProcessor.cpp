@@ -73,9 +73,10 @@ void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
     if (command == "")
     {
         // Print all available commands if no argument was given
+        std::cout << "Available commands:\n";
         for (auto i = cmdMap.cbegin(); i != cmdMap.cend(); i++)
         {
-            std::cout << i->first << '\n';
+            std::cout << "- " <<  i->first << '\n';
         }
     }
     else // If an argument was given, find the command in the command map and execute the help function
