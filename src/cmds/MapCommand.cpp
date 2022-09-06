@@ -18,8 +18,11 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else
     {
+        unsigned long totalMem = 0; // Total amount of bytes used
+
         for (size_t i = 0; i < memRegions.size(); i++)
         {
+            totalMem += memRegions[i].rangeLength;
             // The maximum length of the "addressRange" string is 33
             // an address in hex can be up to 16 characters, this string has 2 of them + the '-' inbetween
             std::cout << std::left << std::setw(33) << memRegions[i].addressRange << '\t' <<
@@ -27,6 +30,7 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
                 memRegions[i].perms << '\t' <<
                 memRegions[i].pathName << '\n';
         }
+        std::cout << "Total: " << totalMem << " bytes.\n";
     }
 }
 
