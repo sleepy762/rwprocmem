@@ -50,7 +50,7 @@ void Process::UpdateMemoryRegions()
     std::string line;
     while (std::getline(processMap, line))
     {
-        mem_region_t reg = { "", 0, "", "" }; // Empty initialization
+        mem_region_t reg = { "", 0, 0, 0, "", "" }; // Empty initialization
         std::vector<std::string> tokens = Utils::SplitString(line, ' ');
         
         // The /proc/pid/maps file always has the same pattern, therefore:
@@ -60,12 +60,20 @@ void Process::UpdateMemoryRegions()
         // tokens[3] holds the device (unused)
         // tokens[4] holds the inode (unused)
         // tokens[5] holds the pathname (optional)
-        
-        // Set the memory address range
+
+        // Set the memory address range string
         reg.addressRange = tokens[0];
 
+        // The delimiter in the address range is '-', as seen in any maps file
+        std::vector<std::string> addressTokens = Utils::SplitString(tokens[0], '-');
+
+        // The start address is in the 1st index, the end address is in the 2nd index
+        // The addresses are in hexadecimal
+        reg.startAddr = std::stoul(addressTokens[0], nullptr, 16);
+        reg.endAddr = std::stoul(addressTokens[1], nullptr, 16);
+       
         // Calculate the address range length
-        reg.rangeLength = this->CalculateAddressRangeLength(tokens[0]);
+        reg.rangeLength = reg.endAddr - reg.startAddr;
 
         // Set the perms string
         reg.perms = tokens[1];
@@ -95,22 +103,6 @@ void Process::UpdateMemoryRegions()
 
         this->m_memRegions.push_back(reg);
     }
-}
-
-// This method is specific to this class, hence the parameter
-// It is used to calculate the length of the address range when reading
-// address regions from a /proc/pid/maps file
-unsigned long Process::CalculateAddressRangeLength(const std::string& rangeStr)
-{
-    // The delimiter in the address range is '-', as seen in any maps file
-    std::vector<std::string> tokens = Utils::SplitString(rangeStr, '-');
-
-    // Now tokens[0] is the start address, tokens[1] is the end address
-    // The addresses are in hexadecimal
-    unsigned long startAddr = std::stoul(tokens[0], nullptr, 16);
-    unsigned long endAddr = std::stoul(tokens[1], nullptr, 16);
-
-    return endAddr - startAddr;
 }
 
 pid_t Process::GetCurrentPid() const
