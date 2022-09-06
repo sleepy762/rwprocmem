@@ -37,7 +37,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::invalid_argument(args[0] + ": Invalid length.");
     }
 
-    const std::vector<uint8_t> dataVec = Utils::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
+    const std::vector<uint8_t> dataVec = Utils::ReadReadableProcMemory(proc.GetCurrentPid(), baseAddr, length);
     constexpr int BYTES_PER_LINE = 16;
 
     for (size_t i = 0; i < length; i += BYTES_PER_LINE)

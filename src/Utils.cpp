@@ -73,7 +73,9 @@ std::string Utils::GetProcessCommand(pid_t pid)
     return commStr;
 }
 
-std::vector<uint8_t> Utils::ReadProcessMemory(pid_t pid, unsigned long baseAddr,
+// This function should be used when the requested memory region is readable (r permission is set)
+// process_vm_readv will fail if the region is not readable and ptrace should be used instead
+std::vector<uint8_t> Utils::ReadReadableProcMemory(pid_t pid, unsigned long baseAddr,
         unsigned long length)
 {
     iovec local[1];
