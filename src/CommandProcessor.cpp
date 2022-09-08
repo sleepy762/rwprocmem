@@ -10,6 +10,7 @@
 #include "cmds/PidCommand.h"
 #include "cmds/MapCommand.h"
 #include "cmds/DumpCommand.h"
+#include "cmds/WriteCommand.h"
 
 using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
 using CommandHelpFunc = const char* (*)();
@@ -24,7 +25,8 @@ static const std::unordered_map<std::string , cmd_funcs_t> cmdMap =
 {
     { "pid",  { &ICommand<PidCommand>::Main,  &ICommand<PidCommand>::Help } },
     { "map",  { &ICommand<MapCommand>::Main,  &ICommand<MapCommand>::Help } },
-    { "dump", { &ICommand<DumpCommand>::Main, &ICommand<DumpCommand>::Help } }
+    { "dump", { &ICommand<DumpCommand>::Main, &ICommand<DumpCommand>::Help } },
+    { "write", {&ICommand<WriteCommand>::Main, &ICommand<WriteCommand>::Help } }
 };
 
 
@@ -88,7 +90,7 @@ void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
         }
         else
         {
-            std::cout << cmdFunctions->second.HelpFunc();
+            std::cout << '\n' << cmdFunctions->second.HelpFunc() << '\n';
         }
     }
 }

@@ -7,9 +7,11 @@
 namespace Utils
 {
     std::vector<std::string> SplitString(const std::string& str, const char delim);
-    std::string GetProcessCommand(pid_t pid);
+    std::string GetProcessCommand(const pid_t pid);
 
-    std::vector<uint8_t> ReadReadableProcMemory(pid_t pid, unsigned long baseAddr,
-        unsigned long length);
+    std::vector<uint8_t> ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
+        const unsigned long length);
+    ssize_t WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
+            const size_t dataSize, void* data);
 }
 

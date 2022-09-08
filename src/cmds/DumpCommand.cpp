@@ -11,8 +11,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
     if (args.size() < 3)
     {
-        const std::string err = args[0] + ": Missing arguments.";
-        throw std::runtime_error(err);
+        throw std::runtime_error(args[0] + ": Missing arguments.");
     }
 
     unsigned long baseAddr;
@@ -21,7 +20,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     try
     {
         // The address is expected to be passed in hexadecimal
-        baseAddr = std::stoul(args.at(1), nullptr, 16);
+        baseAddr = std::stoul(args[1], nullptr, 16);
     }
     catch (const std::exception& e)
     {
@@ -30,14 +29,14 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 
     try
     {
-        length = std::stoul(args.at(2));
+        length = std::stoul(args[2]);
     }
     catch (const std::exception& e)
     {
         throw std::invalid_argument(args[0] + ": Invalid length.");
     }
 
-    const std::vector<uint8_t> dataVec = Utils::ReadReadableProcMemory(proc.GetCurrentPid(), baseAddr, length);
+    const std::vector<uint8_t> dataVec = Utils::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
     constexpr int BYTES_PER_LINE = 16;
 
     for (size_t i = 0; i < length; i += BYTES_PER_LINE)

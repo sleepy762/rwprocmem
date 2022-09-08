@@ -28,7 +28,7 @@ std::vector<std::string> Utils::SplitString(const std::string& str, const char d
 
 // Returns the contents of /proc/.../cmdline if it's not empty
 // Otherwise returns the contents of /proc/.../comm
-std::string Utils::GetProcessCommand(pid_t pid)
+std::string Utils::GetProcessCommand(const pid_t pid)
 {
     std::string basePath = "/proc/" + std::to_string(pid);
     std::string cmdLinePath = basePath + "/cmdline";
@@ -73,10 +73,44 @@ std::string Utils::GetProcessCommand(pid_t pid)
     return commStr;
 }
 
+// Returns an error message when process_vm_readv/process_vm_writev fail
+// Parameter expects errno
+static std::string GetErrorMessage(int err)
+{
+    std::string errMsg;
+    switch (err)
+    {
+        case EFAULT:
+            errMsg = "Memory address is outside the accessible space of the process.";
+            break;
+
+        case EINVAL:
+            errMsg = "Invalid arguments.";
+            break;
+
+        case ENOMEM:
+            errMsg = "Failed to allocate memory for iovec structures.";
+            break;
+
+        case EPERM:
+            errMsg = "Permission denied.";
+            break;
+
+        case ESRCH:
+            errMsg = "Invalid PID (process doesn't exist).";
+            break;
+
+        default:
+            errMsg = "Unknown error.";
+            break;
+    }
+    return errMsg;
+}
+
 // This function should be used when the requested memory region is readable (r permission is set)
 // process_vm_readv will fail if the region is not readable and ptrace should be used instead
-std::vector<uint8_t> Utils::ReadReadableProcMemory(pid_t pid, unsigned long baseAddr,
-        unsigned long length)
+std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
+        const unsigned long length)
 {
     iovec local[1];
     local[0].iov_base = new uint8_t[length];
@@ -89,34 +123,9 @@ std::vector<uint8_t> Utils::ReadReadableProcMemory(pid_t pid, unsigned long base
     ssize_t nread = process_vm_readv(pid, local, 1, remote, 1, 0);
     if (nread < 0)
     {
-        std::string errMsg;
-        switch (errno)
-        {
-            case EFAULT:
-                errMsg = "Memory address is outside the accessible space of the process.";
-                break;
-
-            case EINVAL:
-                errMsg = "Invalid arguments.";
-                break;
-
-            case ENOMEM:
-                errMsg = "Failed to allocate memory for iovec structures.";
-                break;
-
-            case EPERM:
-                errMsg = "Permission denied.";
-                break;
-
-            case ESRCH:
-                errMsg = "Invalid PID (process doesn't exist).";
-                break;
-
-            default:
-                errMsg = "Unknown error.";
-                break;
-        }
         delete[] (uint8_t*)local[0].iov_base;
+
+        std::string errMsg = GetErrorMessage(errno);
         throw std::runtime_error(errMsg);
     }
 
@@ -125,5 +134,25 @@ std::vector<uint8_t> Utils::ReadReadableProcMemory(pid_t pid, unsigned long base
     dataVec.insert(dataVec.end(), &((uint8_t*)local[0].iov_base)[0], &((uint8_t*)local[0].iov_base)[length]);
 
     return dataVec;
+}
+
+ssize_t Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
+            const size_t dataSize, void* data)
+{
+    iovec local[1];
+    local[0].iov_base = data;
+    local[0].iov_len = dataSize;
+
+    iovec remote[1];
+    remote[0].iov_base = (void*)baseAddr;
+    remote[0].iov_len = dataSize;
+
+    ssize_t nread = process_vm_writev(pid, local, 1, remote, 1, 0);
+    if (nread < 0)
+    {
+        std::string errMsg = GetErrorMessage(errno);
+        throw std::runtime_error(errMsg);
+    }
+    return nread;
 }
 
