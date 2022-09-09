@@ -3,15 +3,24 @@
 #include <vector>
 #include <sys/types.h>
 
+typedef struct mem_region_perms_t
+{
+    bool readFlag;
+    bool writeFlag;
+    bool executeFlag;
+    bool sharedFlag;
+} mem_region_perms_t;
+
 typedef struct mem_region_t
 {
-    std::string addressRange;
-
+    std::string addressRangeStr;
     unsigned long startAddr;
     unsigned long endAddr;
     unsigned long rangeLength;
 
-    std::string perms;
+    mem_region_perms_t perms;
+    std::string permsStr;
+
     std::string pathName;
 } mem_region_t;
 
@@ -32,5 +41,8 @@ private:
     std::vector<mem_region_t> m_memRegions;
 
     void UpdateMemoryRegions();
+
+    void SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& addressRange);
+    void SetMemoryRegionPerms(mem_region_t& reg, const std::string& perms);
 };
 

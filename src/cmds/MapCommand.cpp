@@ -24,9 +24,9 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
         {
             totalMem += memRegions[i].rangeLength;
 
-            std::cout << memRegions[i].addressRange << '\t' <<
+            std::cout << memRegions[i].addressRangeStr << '\t' <<
                 memRegions[i].rangeLength << " bytes\t" <<
-                memRegions[i].perms << '\t' <<
+                memRegions[i].permsStr << '\t' <<
                 memRegions[i].pathName << '\n';
         }
         std::cout << "\nTotal: " << totalMem << " bytes in " << memRegions.size() << " memory regions.\n";

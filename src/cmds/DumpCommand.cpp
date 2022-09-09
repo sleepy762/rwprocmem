@@ -43,7 +43,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     {
         std::string printableData = ""; // Holds printable ASCII characters 
         // Output the memory address offset (memory address is 16 characters long)
-        std::cout << std::hex << baseAddr + i << ": ";
+        std::cout << "0x" << std::hex << baseAddr + i << ": ";
 
         for (int j = 0; j < BYTES_PER_LINE; j++)
         {

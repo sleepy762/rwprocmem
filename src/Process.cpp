@@ -50,7 +50,7 @@ void Process::UpdateMemoryRegions()
     std::string line;
     while (std::getline(processMap, line))
     {
-        mem_region_t reg = { "", 0, 0, 0, "", "" }; // Empty initialization
+        mem_region_t reg;
         std::vector<std::string> tokens = Utils::SplitString(line, ' ');
         
         // The /proc/pid/maps file always has the same pattern, therefore:
@@ -61,23 +61,15 @@ void Process::UpdateMemoryRegions()
         // tokens[4] holds the inode (unused)
         // tokens[5] holds the pathname (optional)
 
-        // Set the memory address range string
-        reg.addressRange = tokens[0];
+        // Sets the start and end addresses of the region
+        this->SetMemoryRangeBoundaries(reg, tokens[0]);
 
-        // The delimiter in the address range is '-', as seen in any maps file
-        std::vector<std::string> addressTokens = Utils::SplitString(tokens[0], '-');
-
-        // The start address is in the 1st index, the end address is in the 2nd index
-        // The addresses are in hexadecimal
-        reg.startAddr = std::stoul(addressTokens[0], nullptr, 16);
-        reg.endAddr = std::stoul(addressTokens[1], nullptr, 16);
-       
         // Calculate the address range length
         reg.rangeLength = reg.endAddr - reg.startAddr;
 
-        // Set the perms string
-        reg.perms = tokens[1];
-    
+        // Set the actual permissions
+        this->SetMemoryRegionPerms(reg, tokens[1]);
+
         // This is the minimum amount of fields in the maps file
         // when there is no "pathname" field
         constexpr int MIN_AMOUNT_OF_FIELDS = 5;
@@ -102,6 +94,46 @@ void Process::UpdateMemoryRegions()
         }
 
         this->m_memRegions.push_back(reg);
+    }
+}
+
+void Process::SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& addressRange)
+{
+    reg.addressRangeStr = addressRange;
+
+    // The delimiter in the address range is '-', as seen in any maps file
+    std::vector<std::string> addressTokens = Utils::SplitString(addressRange, '-');
+
+    // The start address is in the 1st index, the end address is in the 2nd index
+    // The addresses are in hexadecimal
+    reg.startAddr = std::stoul(addressTokens[0], nullptr, 16);
+    reg.endAddr = std::stoul(addressTokens[1], nullptr, 16);
+}
+
+void Process::SetMemoryRegionPerms(mem_region_t& reg, const std::string& perms)
+{
+    reg.permsStr = perms;
+
+    // The structure of the permissions string is constant and when all
+    // permissions are set looks like this: rwxp
+    // The meaning of each permission from left to right is
+    // Readable, writable, executable, private (this can be either private(p) or shared (s))
+    // In this case, we check if the region is shared memory
+    if (perms[0] == 'r')
+    {
+        reg.perms.readFlag = true;
+    }
+    if (perms[1] == 'w')
+    {
+        reg.perms.writeFlag = true;
+    }
+    if (perms[2] == 'x')
+    {
+        reg.perms.executeFlag = true;
+    }
+    if (perms[3] == 's')
+    {
+        reg.perms.sharedFlag = true;
     }
 }
 
