@@ -113,7 +113,7 @@ static std::string GetErrorMessage(int err)
 std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
         const unsigned long length)
 {
-    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>(length);
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
 
     iovec local[1];
     local[0].iov_base = buffer.get();
