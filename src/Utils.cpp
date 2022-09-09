@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstring>
 #include <sys/uio.h>
+#include <memory>
 
 std::vector<std::string> Utils::SplitString(const std::string& str, const char delim)
 {
@@ -112,8 +113,10 @@ static std::string GetErrorMessage(int err)
 std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
         const unsigned long length)
 {
+    std::unique_ptr<uint8_t> buffer = std::make_unique<uint8_t>(length);
+
     iovec local[1];
-    local[0].iov_base = new uint8_t[length];
+    local[0].iov_base = buffer.get();
     local[0].iov_len = length;
 
     iovec remote[1];
@@ -123,15 +126,13 @@ std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned lo
     ssize_t nread = process_vm_readv(pid, local, 1, remote, 1, 0);
     if (nread < 0)
     {
-        delete[] (uint8_t*)local[0].iov_base;
-
         std::string errMsg = GetErrorMessage(errno);
         throw std::runtime_error(errMsg);
     }
 
     std::vector<uint8_t> dataVec;
     // Copy the data given from process_vm_readv into the byte vector
-    dataVec.insert(dataVec.end(), &((uint8_t*)local[0].iov_base)[0], &((uint8_t*)local[0].iov_base)[length]);
+    dataVec.insert(dataVec.end(), &buffer.get()[0], &buffer.get()[length]);
 
     return dataVec;
 }
