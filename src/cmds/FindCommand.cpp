@@ -103,6 +103,7 @@ void FindData<char>(const Process& proc, const std::vector<std::string>& args)
                 break;
             }
 
+            // Compare strings
             if (std::strncmp(fullString.c_str(), (const char*)dataPtr + i, fullStringLen) == 0)
             {
                 matches++;
