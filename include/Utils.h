@@ -17,6 +17,9 @@ namespace Utils
     ssize_t WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
             const size_t dataSize, void* data);
 
+    std::string JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
+            const char joinChar);
+
     template <std::integral T>
     T StrToNumber(const char* dataString, const size_t strLength)
     {

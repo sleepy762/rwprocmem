@@ -77,16 +77,7 @@ void Process::UpdateMemoryRegions()
         // We have to make sure that the pathname token exists (sometimes it doesn't)
         if (tokens.size() > MIN_AMOUNT_OF_FIELDS)
         {
-            // The initial iterator starts where the pathname begins
-            for (auto it = tokens.begin() + MIN_AMOUNT_OF_FIELDS; it != tokens.end(); it++)
-            {
-                reg.pathName += *it;
-                if (it + 1 != tokens.end())
-                {
-                    // Add a space in between the strings
-                    reg.pathName += ' ';
-                }
-            }
+            reg.pathName = Utils::JoinVectorOfStrings(tokens, MIN_AMOUNT_OF_FIELDS, ' ');
         }
         else
         {

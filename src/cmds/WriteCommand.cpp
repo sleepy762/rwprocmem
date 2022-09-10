@@ -24,17 +24,8 @@ template <>
 void WriteData<char>(const pid_t pid, const unsigned long baseAddr,
         const std::vector<std::string>& args)
 {
-    // Merge all the data strings into 1 string
-    std::string fullData = "";
-    for (auto it = args.cbegin() + 3; it != args.cend(); it++)
-    {
-        fullData += *it;
-        // Add a space character in between the strings when joining them
-        if (it + 1 != args.cend())
-        {
-            fullData += ' ';
-        }
-    }
+    // Data starts at index 3
+    std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
 
     const long dataSize = fullData.size();
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());

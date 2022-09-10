@@ -157,3 +157,19 @@ ssize_t Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAdd
     return nread;
 }
 
+std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
+            const char joinChar)
+{
+    // Merge all the data strings into 1 string
+    std::string fullString = "";
+    for (auto it = vec.cbegin() + startIndex; it != vec.cend(); it++)
+    {
+        fullString += *it;
+        // Add a space character in between the strings when joining them
+        if (it + 1 != vec.cend())
+        {
+            fullString += joinChar;
+        }
+    }
+    return fullString;
+}
