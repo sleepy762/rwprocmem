@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include <iostream>
 #include <cstdint>
 #include <sstream>
 #include <stdexcept>
@@ -111,7 +112,7 @@ static std::string GetErrorMessage(int err)
 // This function should be used when the requested memory region is readable (r permission is set)
 // process_vm_readv will fail if the region is not readable and ptrace should be used instead
 std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
-        const unsigned long length)
+        const long length)
 {
     std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
 
@@ -129,10 +130,14 @@ std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned lo
         std::string errMsg = GetErrorMessage(errno);
         throw std::runtime_error(errMsg);
     }
+    else if (nread != length)
+    {
+        std::cout << "WARNING: Partial read. Read " << nread << '/' << length << " bytes.\n\n";
+    }
 
     std::vector<uint8_t> dataVec;
     // Copy the data given from process_vm_readv into the byte vector
-    dataVec.insert(dataVec.end(), &buffer.get()[0], &buffer.get()[length]);
+    dataVec.insert(dataVec.end(), &buffer.get()[0], &buffer.get()[nread]);
 
     return dataVec;
 }

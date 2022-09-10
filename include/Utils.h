@@ -13,7 +13,7 @@ namespace Utils
     std::string GetProcessCommand(const pid_t pid);
 
     std::vector<uint8_t> ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
-        const unsigned long length);
+        const long length);
     ssize_t WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
             const size_t dataSize, void* data);
 

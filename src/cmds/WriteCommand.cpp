@@ -26,8 +26,8 @@ void WriteData<char>(const pid_t pid, const unsigned long baseAddr,
 {
     // Data starts at index 3
     std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
-
     const long dataSize = fullData.size();
+
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
     if (nread != dataSize)
     {

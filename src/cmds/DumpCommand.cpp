@@ -37,9 +37,10 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 
     const std::vector<uint8_t> dataVec = Utils::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
+    const size_t dataLen = dataVec.size();
     constexpr int BYTES_PER_LINE = 16;
 
-    for (size_t i = 0; i < length; i += BYTES_PER_LINE)
+    for (size_t i = 0; i < dataLen; i += BYTES_PER_LINE)
     {
         std::string printableData = ""; // Holds printable ASCII characters 
         // Output the memory address offset (memory address is 16 characters long)
@@ -48,7 +49,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
         for (int j = 0; j < BYTES_PER_LINE; j++)
         {
             // Avoid going out of bounds
-            if (i + j >= length)
+            if (i + j >= dataLen)
             {
                 // Add padding if the last line is shorter
                 for (int k = 0; k < BYTES_PER_LINE - j; k++)
