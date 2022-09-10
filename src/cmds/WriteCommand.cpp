@@ -5,81 +5,86 @@
 #include <iostream>
 #include <stdexcept>
 #include <sys/types.h>
-#include <memory>
 #include <charconv>
-#include <type_traits>
 #include <concepts>
 
 // Accepts int8, int16, int32, int64
 template <std::integral T>
-void WriteData(const pid_t pid, const unsigned long baseAddr, 
-        const std::vector<std::string>& args)
+void WriteData(const pid_t pid, const unsigned long baseAddr, const std::vector<std::string>& args)
 {
     const long dataSize = sizeof(T);
     
     T dataValue = 0;
     const char* dataString = args[3].c_str();
-    try
+
+    std::from_chars_result res;
+    // Help this function out
+    // Use hex if the input is in hex
+    if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
     {
-        // Help this function out
-        // Use hex if the input is in hex
-        if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
-        {
-            dataString += 2; // Move past the '0x'
-            std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, 16);
-        }
-        else // Use decimal base
-        {
-            std::from_chars(dataString, dataString + args[3].size(), dataValue);
-        }
+        dataString += 2; // Move past the '0x'
+        res = std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, 16);
     }
-    catch (const std::exception& e)
+    else // Use decimal base
     {
-        throw std::runtime_error("Invalid data.");
+        res = std::from_chars(dataString, dataString + args[3].size(), dataValue);
+    }
+
+    // Error checking
+    if (res.ec == std::errc::invalid_argument)
+    {
+        throw std::invalid_argument(args[0] + ": Invalid data.");
+    }
+    else if (res.ec == std::errc::result_out_of_range)
+    {
+        throw std::runtime_error(args[0] + ": Result of data conversion is out of range for the given type.");
     }
 
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, &dataValue);
     if (nread != dataSize)
     {
-        std::cout << "WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
+        std::cout << args[0] << ": WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
     }
 }
 
-// Template function specialized for floating point types beacuse std::from_chars doesn't
+// Template function specialized for floating point types because std::from_chars doesn't
 // interpret hex numbers in the generic template function
 // Accepts float, double
 template <std::floating_point T>
-void WriteData(const pid_t pid, const unsigned long baseAddr,
-        const std::vector<std::string>& args)
+void WriteData(const pid_t pid, const unsigned long baseAddr, const std::vector<std::string>& args)
 {
     const long dataSize = sizeof(T);
     
     T dataValue = 0;
     const char* dataString = args[3].c_str();
-    try
+    
+    std::from_chars_result res;
+    // It also needs help with floating point numbers
+    if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
     {
-        // It also needs help with floating point numbers
-        if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
-        {
-            dataString += 2; // Move past the '0x'
-            std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, std::chars_format::hex);
-        }
-        else
-        {
-            std::from_chars(dataString, dataString + args[3].size(), dataValue);
-        }
+        dataString += 2; // Move past the '0x'
+        res = std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, std::chars_format::hex);
     }
-    catch (const std::exception& e)
+    else
     {
-        throw std::runtime_error("Invalid data.");
+        res = std::from_chars(dataString, dataString + args[3].size(), dataValue);
+    }
+
+    // Error checking
+    if (res.ec == std::errc::invalid_argument)
+    {
+        throw std::invalid_argument(args[0] + ": Invalid data.");
+    }
+    else if (res.ec == std::errc::result_out_of_range)
+    {
+        throw std::runtime_error(args[0] + ": Result of data conversion is out of range for the given type.");
     }
 
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, &dataValue);
     if (nread != dataSize)
     {
-        std::cout << "WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
+        std::cout << args[0] << ": WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
     }
-
 }
 
 // Accepts string
@@ -92,6 +97,7 @@ void WriteData<char>(const pid_t pid, const unsigned long baseAddr,
     for (auto it = args.cbegin() + 3; it != args.cend(); it++)
     {
         fullData += *it;
+        // Add a space character in between the strings when joining them
         if (it + 1 != args.cend())
         {
             fullData += ' ';
@@ -102,7 +108,7 @@ void WriteData<char>(const pid_t pid, const unsigned long baseAddr,
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
     if (nread != dataSize)
     {
-        std::cout << "WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
+        std::cout << args[0] << ": WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
     }
 }
 
