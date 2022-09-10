@@ -9,10 +9,10 @@
 template <typename T>
 void WriteData(const pid_t pid, const unsigned long baseAddr, const std::vector<std::string>& args)
 {
-    constexpr long dataSize = sizeof(T);
+    constexpr unsigned long dataTypeSize = sizeof(T);
     T dataValue = Utils::StrToNumber<T>(args[3].c_str(), args[3].size());
 
-    Utils::WriteToProcessMemory(pid, baseAddr, dataSize, &dataValue);
+    Utils::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
 }
 
 // Accepts string

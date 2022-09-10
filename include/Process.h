@@ -34,15 +34,14 @@ public:
     void SetProcessPid(pid_t pid);
 
     pid_t GetCurrentPid() const;
-    const std::vector<mem_region_t>& GetMemoryRegions();
+    const std::vector<mem_region_t> GetMemoryRegions() const;
 
 private:
     pid_t m_pid;
-    std::vector<mem_region_t> m_memRegions;
 
     void UpdateMemoryRegions();
 
-    void SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& addressRange);
-    void SetMemoryRegionPerms(mem_region_t& reg, const std::string& perms);
+    void SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& addressRange) const;
+    void SetMemoryRegionPerms(mem_region_t& reg, const std::string& perms) const;
 };
 
