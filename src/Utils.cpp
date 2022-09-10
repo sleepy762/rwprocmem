@@ -132,7 +132,7 @@ std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned lo
     }
     else if (nread != length)
     {
-        std::cout << "WARNING: Partial read. Read " << nread << '/' << length << " bytes.\n\n";
+        std::cout << "WARNING: Partial read. Read " << nread << '/' << length << " bytes.\n";
     }
 
     std::vector<uint8_t> dataVec;
@@ -142,8 +142,8 @@ std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned lo
     return dataVec;
 }
 
-ssize_t Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
-            const size_t dataSize, void* data)
+void Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
+            const long dataSize, void* data)
 {
     iovec local[1];
     local[0].iov_base = data;
@@ -159,7 +159,10 @@ ssize_t Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAdd
         std::string errMsg = GetErrorMessage(errno);
         throw std::runtime_error(errMsg);
     }
-    return nread;
+    else if (nread != dataSize)
+    {
+        std::cout << "WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
+    }
 }
 
 std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
