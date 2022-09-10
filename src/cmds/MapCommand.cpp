@@ -8,10 +8,10 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
     (void)args;
     if (proc.GetCurrentPid() == 0)
     {
-        throw std::runtime_error(args[0] + ": A pid has not been set. (see command 'pid')");
+        throw std::runtime_error("A pid has not been set. (see command 'pid')");
     }
 
-    std::vector<mem_region_t> memRegions = proc.GetMemoryRegions();
+    const std::vector<mem_region_t>& memRegions = proc.GetMemoryRegions();
     if (memRegions.size() == 0)
     {
         std::cout << "No memory regions were found.\n";
@@ -35,7 +35,7 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
 
 const char* MapCommand::Help()
 {
-    return "Usage: map\n"
+    return "Usage: map\n\n"
         "If attached to a process, print the memory regions map (/proc/pid/maps)\n"
         "The fields are the following in order:\n"
         "<memory address range> <range length> <permissions> <pathname>\n";

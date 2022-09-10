@@ -11,7 +11,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
     if (args.size() < 3)
     {
-        throw std::runtime_error(args[0] + ": Missing arguments.");
+        throw std::runtime_error("Missing arguments.");
     }
 
     unsigned long baseAddr;
@@ -24,7 +24,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     catch (const std::exception& e)
     {
-        throw std::invalid_argument(args[0] + ": Invalid address.");
+        throw std::invalid_argument("Invalid address.");
     }
 
     try
@@ -33,7 +33,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     catch (const std::exception& e)
     {
-        throw std::invalid_argument(args[0] + ": Invalid length.");
+        throw std::invalid_argument("Invalid length.");
     }
 
     const std::vector<uint8_t> dataVec = Utils::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
@@ -71,7 +71,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 
 const char* DumpCommand::Help()
 {
-    return "Usage: dump <address> <length>\n"
+    return "Usage: dump <address> <length>\n\n"
         "Ouputs a hex dump with the given length of the data in the given address.\n"
         "The memory address has to be in hexadecimal.\n";
 }

@@ -25,7 +25,8 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         else
         {
-            std::cout << "Process " << currPid << ": " << Utils::GetProcessCommand(currPid) << '\n';
+            std::string procCmd = Utils::GetProcessCommand(currPid);
+            std::cout << "Process " << currPid << ": " << procCmd << '\n';
         }
     }
     else // Check if it's a valid pid and use it
@@ -38,10 +39,11 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         catch (const std::exception& e)
         {
-            throw std::invalid_argument(args[0] + ": Invalid pid.");
+            throw std::invalid_argument("Invalid pid.");
         }
         
-        std::cout << "Process " << newPid << ": " << Utils::GetProcessCommand(newPid) << '\n';
+        std::string procCmd = Utils::GetProcessCommand(newPid);
+        std::cout << "Process " << newPid << ": " << procCmd << '\n';
 
         proc.SetProcessPid(newPid);
         std::cout << "Pid set to " << newPid << ".\n";
@@ -50,7 +52,7 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
 
 const char* PidCommand::Help()
 {
-    return "Usage: pid [pid]\n"
+    return "Usage: pid [pid]\n\n"
         "If [pid] is passed, the program will use specified pid.\n"
         "If no argument was passed then the currently used pid will be printed.\n";
 }

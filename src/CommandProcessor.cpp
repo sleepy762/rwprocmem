@@ -1,6 +1,7 @@
 #include "CommandProcessor.h"
 #include "Utils.h"
 #include "Process.h"
+#include <exception>
 #include <vector>
 #include <iostream>
 #include <stdexcept>
@@ -52,7 +53,14 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
         auto commandFuncIt = cmdMap.find(command);
         if (commandFuncIt != cmdMap.end())
         {
-            commandFuncIt->second.MainFunc(proc, tokens);
+            try
+            {
+                commandFuncIt->second.MainFunc(proc, tokens);
+            }
+            catch (const std::exception& e)
+            {
+                std::cout << command << ": " << e.what() << '\n';
+            }
         }
         else
         {

@@ -142,7 +142,7 @@ pid_t Process::GetCurrentPid() const
     return this->m_pid;
 }
 
-std::vector<mem_region_t> Process::GetMemoryRegions()
+const std::vector<mem_region_t>& Process::GetMemoryRegions()
 {
     // Make sure we are returning the most up to date memory region structs
     this->UpdateMemoryRegions();
