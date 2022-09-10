@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cstring>
 
 template <typename T>
 void FindData(const Process& proc, const std::vector<std::string>& args)
@@ -54,7 +55,7 @@ void FindData(const Process& proc, const std::vector<std::string>& args)
             {
                 matches++;
                 std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
-                    " (in " << it->pathName << ")\n";
+                    std::dec << " (in " << it->pathName << ")\n";
             }
         }
     }
@@ -91,8 +92,26 @@ void FindData<char>(const Process& proc, const std::vector<std::string>& args)
             // but in reality are unreadable... ([vvar] for example)
             continue;
         }
+        
+        // The vector is a contiguous array in memory so we can do this
+        const unsigned char* dataPtr = &regMemory[0];
+        for (unsigned long i = 0; i < regMemory.size(); i++)
+        {
+            // Try to find the string only if there are enough characters
+            if (regMemory.size() - i < fullStringLen)
+            {
+                break;
+            }
 
+            if (std::strncmp(fullString.c_str(), (const char*)dataPtr + i, fullStringLen) == 0)
+            {
+                matches++;
+                std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
+                    std::dec << " (in " << it->pathName << ")\n";
+            }
+        }
     }
+    std::cout << "Found " << matches << " matches.\n";
 }
 
 void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -159,7 +178,7 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else if (typeStr == "string")
     {
-
+        FindData<char>(proc, args);
     }
     else
     {
