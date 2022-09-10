@@ -5,80 +5,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <sys/types.h>
-#include <charconv>
 #include <concepts>
 
-// Accepts int8, int16, int32, int64
-template <std::integral T>
+template <typename T>
 void WriteData(const pid_t pid, const unsigned long baseAddr, const std::vector<std::string>& args)
 {
-    const long dataSize = sizeof(T);
-    
-    T dataValue = 0;
-    const char* dataString = args[3].c_str();
-
-    std::from_chars_result res;
-    // Help this function out
-    // Use hex if the input is in hex
-    if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
-    {
-        dataString += 2; // Move past the '0x'
-        res = std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, 16);
-    }
-    else // Use decimal base
-    {
-        res = std::from_chars(dataString, dataString + args[3].size(), dataValue);
-    }
-
-    // Error checking
-    if (res.ec == std::errc::invalid_argument)
-    {
-        throw std::invalid_argument("Invalid data.");
-    }
-    else if (res.ec == std::errc::result_out_of_range)
-    {
-        throw std::runtime_error("Result of data conversion is out of range for the given type.");
-    }
-
-    ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, &dataValue);
-    if (nread != dataSize)
-    {
-        std::cout << args[0] << ": WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
-    }
-}
-
-// Template function specialized for floating point types because std::from_chars doesn't
-// interpret hex numbers in the generic template function
-// Accepts float, double
-template <std::floating_point T>
-void WriteData(const pid_t pid, const unsigned long baseAddr, const std::vector<std::string>& args)
-{
-    const long dataSize = sizeof(T);
-    
-    T dataValue = 0;
-    const char* dataString = args[3].c_str();
-    
-    std::from_chars_result res;
-    // It also needs help with floating point numbers
-    if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
-    {
-        dataString += 2; // Move past the '0x'
-        res = std::from_chars(dataString, dataString + args[3].size() - 2, dataValue, std::chars_format::hex);
-    }
-    else
-    {
-        res = std::from_chars(dataString, dataString + args[3].size(), dataValue);
-    }
-
-    // Error checking
-    if (res.ec == std::errc::invalid_argument)
-    {
-        throw std::invalid_argument("Invalid data.");
-    }
-    else if (res.ec == std::errc::result_out_of_range)
-    {
-        throw std::runtime_error("Result of data conversion is out of range for the given type.");
-    }
+    constexpr long dataSize = sizeof(T);
+    T dataValue = Utils::StrToNumber<T>(args[3].c_str(), args[3].size());
 
     ssize_t nread = Utils::WriteToProcessMemory(pid, baseAddr, dataSize, &dataValue);
     if (nread != dataSize)
@@ -129,8 +62,8 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Invalid address.");
     }
 
-    const std::string typeStr = args[2];
-    if (typeStr[0] == 'i')
+    const std::string& typeStr = args[2];
+    if (typeStr[0] == 'i') // Signed integers
     {
         if (typeStr == "int8")
         {
@@ -153,7 +86,7 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
             throw std::invalid_argument("Invalid signed type.");
         }
     }
-    else if (typeStr[0] == 'u')
+    else if (typeStr[0] == 'u') // Unsigned integers
     {
         if (typeStr == "uint8")
         {
