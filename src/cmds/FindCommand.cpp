@@ -14,52 +14,8 @@ void FindData(const Process& proc, const std::vector<std::string>& args)
 {
     constexpr unsigned long dataTypeSize = sizeof(T); 
     T dataValue = Utils::StrToNumber<T>(args[2].c_str(), args[2].size());
-
-    const pid_t procPid = proc.GetCurrentPid();
     
-    unsigned long matches = 0;
-    const std::vector<mem_region_t> memRegions = proc.GetMemoryRegions();
-    for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
-    {
-        // Skip unreadable memory regions
-        if (!it->perms.readFlag)
-        {
-            continue;
-        }
-        
-        std::vector<uint8_t> regMemory;
-        try
-        {
-            regMemory = Utils::ReadProcessMemory(procPid, it->startAddr, it->rangeLength);
-        }
-        catch (const std::exception& e) 
-        {
-            // Apparently some memory regions are marked as readable
-            // but in reality are unreadable... ([vvar] for example)
-            continue;
-        }
-
-        // The vector is a contiguous array in memory so we can do this
-        const unsigned char* dataPtr = &regMemory[0];
-
-        for (unsigned long i = 0; i < regMemory.size(); i++)
-        {
-            // We always want to have at least dataTypeSize bytes
-            if (regMemory.size() - i < dataTypeSize)
-            {
-                break;
-            }
-
-            const unsigned char* offsetDataPtr = dataPtr + i;
-            if (*(T*)offsetDataPtr == dataValue) // Check if the value is the same
-            {
-                matches++;
-                std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
-                    std::dec << " (in " << it->pathName << ")\n";
-            }
-        }
-    }
-    std::cout << "Found " << matches << " matches.\n";
+    Utils::FindDataInMemory(proc, dataTypeSize, &dataValue);
 }
 
 template <>
@@ -69,50 +25,7 @@ void FindData<char>(const Process& proc, const std::vector<std::string>& args)
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
     const size_t fullStringLen = fullString.size();
 
-    const pid_t procPid = proc.GetCurrentPid();
-
-    unsigned long matches = 0;
-    const std::vector<mem_region_t> memRegions = proc.GetMemoryRegions();
-    for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
-    {
-        // Skip unreadable memory regions
-        if (!it->perms.readFlag)
-        {
-            continue;
-        }
-        
-        std::vector<uint8_t> regMemory;
-        try
-        {
-            regMemory = Utils::ReadProcessMemory(procPid, it->startAddr, it->rangeLength);
-        }
-        catch (const std::exception& e) 
-        {
-            // Apparently some memory regions are marked as readable
-            // but in reality are unreadable... ([vvar] for example)
-            continue;
-        }
-        
-        // The vector is a contiguous array in memory so we can do this
-        const unsigned char* dataPtr = &regMemory[0];
-        for (unsigned long i = 0; i < regMemory.size(); i++)
-        {
-            // Try to find the string only if there are enough characters
-            if (regMemory.size() - i < fullStringLen)
-            {
-                break;
-            }
-
-            // Compare strings
-            if (std::strncmp(fullString.c_str(), (const char*)dataPtr + i, fullStringLen) == 0)
-            {
-                matches++;
-                std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
-                    std::dec << " (in " << it->pathName << ")\n";
-            }
-        }
-    }
-    std::cout << "Found " << matches << " matches.\n";
+    Utils::FindDataInMemory(proc, fullStringLen, fullString.c_str());
 }
 
 void FindCommand::Main(Process& proc, const std::vector<std::string>& args)

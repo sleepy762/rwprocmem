@@ -181,3 +181,56 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, cons
     }
     return fullString;
 }
+
+// Finds data and prints to stdout
+// dataToFind can be of any type
+// dataSize is the size of the type / length of string (if string type is used)
+void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind)
+{
+    const pid_t procPid = proc.GetCurrentPid();
+    
+    unsigned long matches = 0;
+    const std::vector<mem_region_t> memRegions = proc.GetMemoryRegions();
+    for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
+    {
+        // Skip unreadable memory regions
+        if (!it->perms.readFlag)
+        {
+            continue;
+        }
+        
+        std::vector<uint8_t> regMemory;
+        try
+        {
+            // TODO: implement a limit on how much memory is read at a time
+            regMemory = Utils::ReadProcessMemory(procPid, it->startAddr, it->rangeLength);
+        }
+        catch (const std::exception& e) 
+        {
+            // Apparently some memory regions are marked as readable
+            // but in reality are unreadable... ([vvar] for example)
+            continue;
+        }
+
+        // The vector is a contiguous array in memory so we can do this
+        const unsigned char* dataPtr = &regMemory[0];
+        for (unsigned long i = 0; i < regMemory.size(); i++)
+        {
+            // We always want to have at least dataTypeSize bytes
+            if (regMemory.size() - i < dataSize)
+            {
+                break;
+            }
+
+            const unsigned char* offsetDataPtr = dataPtr + i;
+            if (std::memcmp(dataToFind, offsetDataPtr, dataSize) == 0) // Check if the value is the same
+            {
+                matches++;
+                std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
+                    std::dec << " (in " << it->pathName << ")\n";
+            }
+        }
+    }
+    std::cout << "Found " << matches << " matches.\n";
+}
+

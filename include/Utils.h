@@ -6,6 +6,7 @@
 #include <concepts>
 #include <stdexcept>
 #include <charconv>
+#include "Process.h"
 
 namespace Utils
 {
@@ -19,6 +20,8 @@ namespace Utils
 
     std::string JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
             const char joinChar);
+
+    void FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind);
 
     template <std::integral T>
     T StrToNumber(const char* dataString, const size_t strLength)
