@@ -32,8 +32,8 @@ std::vector<std::string> Utils::SplitString(const std::string& str, const char d
 // Otherwise returns the contents of /proc/.../comm
 std::string Utils::GetProcessCommand(const pid_t pid)
 {
-    std::string basePath = "/proc/" + std::to_string(pid);
-    std::string cmdLinePath = basePath + "/cmdline";
+    const std::string basePath = "/proc/" + std::to_string(pid);
+    const std::string cmdLinePath = basePath + "/cmdline";
 
     std::ifstream cmdLineFile(cmdLinePath);
     if (!cmdLineFile.is_open())
@@ -53,7 +53,7 @@ std::string Utils::GetProcessCommand(const pid_t pid)
     }
     cmdLineFile.close();
 
-    std::string commPath = basePath + "/comm";
+    const std::string commPath = basePath + "/comm";
 
     std::ifstream commFile(commPath);
     if (!commFile.is_open())
