@@ -18,8 +18,8 @@ typedef struct mem_region_t
     unsigned long endAddr;
     unsigned long rangeLength;
 
-    mem_region_perms_t perms;
     std::string permsStr;
+    mem_region_perms_t perms;
 
     std::string pathName;
 } mem_region_t;

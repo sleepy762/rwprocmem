@@ -23,6 +23,7 @@ Process::~Process() {}
 void Process::SetProcessPid(pid_t pid)
 {
     // Ensure the given pid is valid
+    // This doesn't check if the pid actually exists
     if (pid > 0 && pid != getpid())
     {
         this->m_pid = pid;
@@ -30,57 +31,6 @@ void Process::SetProcessPid(pid_t pid)
     else
     {
         throw std::invalid_argument("Invalid pid.");
-    }
-}
-
-void Process::UpdateMemoryRegions()
-{
-    std::string processMapPath = "/proc/" + std::to_string(this->m_pid) + "/maps";
-    std::ifstream processMap(processMapPath);
-
-    if (!processMap.is_open())
-    {
-        const std::string errMsg = "Failed to open the maps for pid " + std::to_string(this->m_pid)
-            + ": " + strerror(errno);
-        throw std::runtime_error(errMsg);
-    }
-    
-    std::string line;
-    while (std::getline(processMap, line))
-    {
-        mem_region_t reg;
-        std::vector<std::string> tokens = Utils::SplitString(line, ' ');
-        
-        // The /proc/pid/maps file always has the same pattern, therefore:
-        // tokens[0] has the memory address range
-        // tokens[1] holds the permissions
-        // tokens[2] holds the offset (unused)
-        // tokens[3] holds the device (unused)
-        // tokens[4] holds the inode (unused)
-        // tokens[5] holds the pathname (optional)
-
-        // Sets the start and end addresses of the region
-        this->SetMemoryRangeBoundaries(reg, tokens[0]);
-
-        // Calculate the address range length
-        reg.rangeLength = reg.endAddr - reg.startAddr;
-
-        // Set the actual permissions
-        this->SetMemoryRegionPerms(reg, tokens[1]);
-
-        // This is the minimum amount of fields in the maps file
-        // when there is no "pathname" field
-        constexpr int MIN_AMOUNT_OF_FIELDS = 5;
-
-        // We have to make sure that the pathname token exists (sometimes it doesn't)
-        if (tokens.size() > MIN_AMOUNT_OF_FIELDS)
-        {
-            reg.pathName = Utils::JoinVectorOfStrings(tokens, MIN_AMOUNT_OF_FIELDS, ' ');
-        }
-        else
-        {
-            reg.pathName = "unknown";
-        }
     }
 }
 

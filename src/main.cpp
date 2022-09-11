@@ -7,7 +7,7 @@
 
 int main()
 {
-    std::cout << "rwprocmem v0.0.1\n";
+    std::cout << "rwprocmem v1.0.0\n";
     std::cout << "Type 'help' to see a list of commands.\n";
     if (getuid() != 0)
     {

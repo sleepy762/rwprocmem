@@ -10,6 +10,7 @@
 #include <sys/uio.h>
 #include <memory>
 
+// Splits a string into a vector of strings
 std::vector<std::string> Utils::SplitString(const std::string& str, const char delim)
 {
     std::vector<std::string> tokens;
@@ -111,6 +112,7 @@ static std::string GetErrorMessage(int err)
 
 // This function should be used when the requested memory region is readable (r permission is set)
 // process_vm_readv will fail if the region is not readable and ptrace should be used instead
+// TODO: create a ptrace alternative for both read and write functions
 std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
         const long length)
 {
@@ -182,7 +184,7 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, cons
     return fullString;
 }
 
-// Finds data and prints to stdout
+// Finds data and prints the addresses where the data was found to stdout
 // dataToFind can be of any type
 // dataSize is the size of the type / length of string (if string type is used)
 void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind)
@@ -202,7 +204,7 @@ void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const v
         std::vector<uint8_t> regMemory;
         try
         {
-            // TODO: implement a limit on how much memory is read at a time
+            // TODO: implement a limit on how much memory can be read at a time
             regMemory = Utils::ReadProcessMemory(procPid, it->startAddr, it->rangeLength);
         }
         catch (const std::exception& e) 
@@ -227,7 +229,7 @@ void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const v
             {
                 matches++;
                 std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
-                    std::dec << " (in " << it->pathName << ")\n";
+                    " [" << it->permsStr << std::dec << "] (in " << it->pathName << ")\n";
             }
         }
     }

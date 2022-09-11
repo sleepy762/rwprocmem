@@ -23,6 +23,8 @@ namespace Utils
 
     void FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind);
 
+
+    // std::from_chars takes different arguments depending on if the type is integral or float
     template <std::integral T>
     T StrToNumber(const char* dataString, const size_t strLength)
     {

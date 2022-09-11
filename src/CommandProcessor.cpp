@@ -23,6 +23,7 @@ struct cmd_funcs_t
     CommandHelpFunc HelpFunc;
 };
 
+// All the commands are stored in this map
 static const std::unordered_map<std::string , cmd_funcs_t> cmdMap =
 {
     { "pid",  { &ICommand<PidCommand>::Main,  &ICommand<PidCommand>::Help } },
@@ -52,6 +53,7 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
     }
     else if (command != "exit")
     {
+        // Gets an iterator to the command the user wants
         auto commandFuncIt = cmdMap.find(command);
         if (commandFuncIt != cmdMap.end())
         {
