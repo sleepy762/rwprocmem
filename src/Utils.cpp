@@ -202,18 +202,8 @@ std::vector<mem_address_t> Utils::FindDataInMemory(const pid_t pid,
             continue;
         }
         
-        std::vector<uint8_t> regMemory;
-        try
-        {
-            // TODO: implement a limit on how much memory can be read at a time
-            regMemory = Utils::ReadProcessMemory(pid, it->startAddr, it->rangeLength);
-        }
-        catch (const std::exception& e) 
-        {
-            // Apparently some memory regions are marked as readable
-            // but in reality are unreadable... ([vvar] for example)
-            continue;
-        }
+        // TODO: implement a limit on how much memory can be read at a time
+        std::vector<uint8_t> regMemory = Utils::ReadProcessMemory(pid, it->startAddr, it->rangeLength);
 
         // The vector is a contiguous array in memory so we can do this
         const unsigned char* dataPtr = &regMemory[0];

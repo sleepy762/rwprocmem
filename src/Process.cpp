@@ -130,6 +130,14 @@ const std::vector<mem_region_t> Process::GetMemoryRegions() const
         {
             reg.pathName = "unknown";
         }
+
+        // This is here in order to prevent errors when running commands that scan all memory regions
+        // The [vvar] region, even though marked as readable in the maps file, in reality
+        // is not readable, so it is safe to disable this flag here
+        if (reg.pathName == "[vvar]")
+        {
+            reg.perms.readFlag = false;
+        }
         memRegions.push_back(reg);
     }
     return memRegions;
