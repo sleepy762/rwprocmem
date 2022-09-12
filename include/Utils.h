@@ -8,6 +8,13 @@
 #include <charconv>
 #include "Process.h"
 
+// Used to store a specific address along with the memory region it belongs to
+typedef struct mem_address_t
+{
+    unsigned long address;
+    mem_region_t memRegion;
+} mem_address_t;
+
 namespace Utils
 {
     std::vector<std::string> SplitString(const std::string& str, const char delim);
@@ -21,7 +28,8 @@ namespace Utils
     std::string JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
             const char joinChar);
 
-    void FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind);
+    std::vector<mem_address_t> FindDataInMemory(const pid_t pid, 
+            const std::vector<mem_region_t>& memRegions, const size_t dataSize, const void* dataToFind);
 
 
     // std::from_chars takes different arguments depending on if the type is integral or float

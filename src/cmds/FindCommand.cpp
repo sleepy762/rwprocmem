@@ -10,22 +10,24 @@
 #include <cstring>
 
 template <typename T>
-void FindData(const Process& proc, const std::vector<std::string>& args)
+std::vector<mem_address_t> FindData(const Process& proc, const std::vector<std::string>& args)
 {
     constexpr unsigned long dataTypeSize = sizeof(T); 
     T dataValue = Utils::StrToNumber<T>(args[2].c_str(), args[2].size());
     
-    Utils::FindDataInMemory(proc, dataTypeSize, &dataValue);
+    return Utils::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
+            dataTypeSize, &dataValue);
 }
 
 template <>
-void FindData<char>(const Process& proc, const std::vector<std::string>& args)
+std::vector<mem_address_t> FindData<char>(const Process& proc, const std::vector<std::string>& args)
 {
     // Data starts at index 2
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
     const size_t fullStringLen = fullString.size();
 
-    Utils::FindDataInMemory(proc, fullStringLen, fullString.c_str());
+    return Utils::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(),
+            fullStringLen, fullString.c_str());
 }
 
 void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -35,24 +37,25 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Missing arguments.");
     }
 
+    std::vector<mem_address_t> foundAddrs;
     const std::string& typeStr = args[1]; 
     if (typeStr[0] == 'i')
     {
         if (typeStr == "int8")
         {
-            FindData<int8_t>(proc, args);
+            foundAddrs = FindData<int8_t>(proc, args);
         }
         else if (typeStr == "int16")
         {
-            FindData<int16_t>(proc, args);
+            foundAddrs = FindData<int16_t>(proc, args);
         }
         else if (typeStr == "int32")
         {
-            FindData<int32_t>(proc, args);
+            foundAddrs = FindData<int32_t>(proc, args);
         }
         else if (typeStr == "int64")
         {
-            FindData<int64_t>(proc, args);
+            foundAddrs = FindData<int64_t>(proc, args);
         }
         else
         {
@@ -63,19 +66,19 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
     {
         if (typeStr == "uint8")
         {
-            FindData<uint8_t>(proc, args);
+            foundAddrs = FindData<uint8_t>(proc, args);
         }
         else if (typeStr == "uint16")
         {
-            FindData<uint16_t>(proc, args);
+            foundAddrs = FindData<uint16_t>(proc, args);
         }
         else if (typeStr == "uint32")
         {
-            FindData<uint32_t>(proc, args);
+            foundAddrs = FindData<uint32_t>(proc, args);
         }
         else if (typeStr == "uint64")
         {
-            FindData<uint64_t>(proc, args);
+            foundAddrs = FindData<uint64_t>(proc, args);
         }
         else
         {
@@ -84,22 +87,28 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else if (typeStr == "float")
     {
-        FindData<float>(proc, args);
+        foundAddrs = FindData<float>(proc, args);
     }
     else if (typeStr == "double")
     {
-        FindData<double>(proc, args);
+        foundAddrs = FindData<double>(proc, args);
     }
     else if (typeStr == "string")
     {
-        FindData<char>(proc, args);
+        foundAddrs = FindData<char>(proc, args);
     }
     else
     {
         throw std::runtime_error("Invalid type.");
     }
-}
 
+    for (auto it = foundAddrs.cbegin(); it != foundAddrs.cend(); it++)
+    {
+        int index = it - foundAddrs.cbegin();
+        std::cout << '[' << index << "] 0x" << std::hex << it->address << 
+            " [" << it->memRegion.permsStr << std::dec << "] (in " << it->memRegion.pathName << ")\n";
+    }
+}
 const char* FindCommand::Help()
 {
     return "Usage: find <type> <data>\n\n"

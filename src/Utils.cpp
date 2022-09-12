@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "Process.h"
 #include <iostream>
 #include <cstdint>
 #include <sstream>
@@ -184,15 +185,15 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, cons
     return fullString;
 }
 
-// Finds data and prints the addresses where the data was found to stdout
+// Returns a vector of the memory regions where the given data was found
 // dataToFind can be of any type
 // dataSize is the size of the type / length of string (if string type is used)
-void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const void* dataToFind)
+std::vector<mem_address_t> Utils::FindDataInMemory(const pid_t pid, 
+        const std::vector<mem_region_t>& memRegions, const size_t dataSize, const void* dataToFind)
 {
-    const pid_t procPid = proc.GetCurrentPid();
-    
-    unsigned long matches = 0;
-    const std::vector<mem_region_t> memRegions = proc.GetMemoryRegions();
+    // Vector of the memory addresses with the found data
+    std::vector<mem_address_t> addrs;
+
     for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
     {
         // Skip unreadable memory regions
@@ -205,7 +206,7 @@ void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const v
         try
         {
             // TODO: implement a limit on how much memory can be read at a time
-            regMemory = Utils::ReadProcessMemory(procPid, it->startAddr, it->rangeLength);
+            regMemory = Utils::ReadProcessMemory(pid, it->startAddr, it->rangeLength);
         }
         catch (const std::exception& e) 
         {
@@ -227,12 +228,12 @@ void Utils::FindDataInMemory(const Process& proc, const size_t dataSize, const v
             const unsigned char* offsetDataPtr = dataPtr + i;
             if (std::memcmp(dataToFind, offsetDataPtr, dataSize) == 0) // Check if the value is the same
             {
-                matches++;
-                std::cout << '[' << matches << "] 0x" << std::hex << it->startAddr + i << 
-                    " [" << it->permsStr << std::dec << "] (in " << it->pathName << ")\n";
+                // Store the memory address where the data was found
+                mem_address_t addrStruct = { it->startAddr + i, *it };
+                addrs.push_back(addrStruct);
             }
         }
     }
-    std::cout << "Found " << matches << " matches.\n";
+    return addrs;
 }
 
