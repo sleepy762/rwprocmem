@@ -8,13 +8,6 @@
 #include <charconv>
 #include "Process.h"
 
-// Used to store a specific address along with the memory region it belongs to
-typedef struct mem_address_t
-{
-    unsigned long address;
-    mem_region_t memRegion;
-} mem_address_t;
-
 namespace Utils
 {
     std::vector<std::string> SplitString(const std::string& str, const char delim);
