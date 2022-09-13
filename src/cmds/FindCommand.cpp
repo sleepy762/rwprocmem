@@ -20,7 +20,7 @@ std::vector<mem_address_t> FindData(const Process& proc, const std::vector<std::
 }
 
 template <>
-std::vector<mem_address_t> FindData<char>(const Process& proc, const std::vector<std::string>& args)
+std::vector<mem_address_t> FindData<std::string>(const Process& proc, const std::vector<std::string>& args)
 {
     // Data starts at index 2
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
@@ -95,7 +95,7 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else if (typeStr == "string")
     {
-        foundAddrs = FindData<char>(proc, args);
+        foundAddrs = FindData<std::string>(proc, args);
     }
     else
     {
