@@ -70,10 +70,11 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 }
 
-const char* DumpCommand::Help()
+std::string DumpCommand::Help()
 {
-    return "Usage: dump <address> <length>\n\n"
+    return std::string(
+        "Usage: dump <address> <length>\n\n"
         "Ouputs a hex dump with the given length of the data in the given address.\n"
-        "The memory address has to be in hexadecimal.\n";
+        "The memory address has to be in hexadecimal.\n");
 }
 

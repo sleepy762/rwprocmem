@@ -11,7 +11,7 @@ public:
     {
         T::Main(proc, args);
     }
-    static const char* Help()
+    static std::string Help()
     {
         return T::Help();
     }

@@ -50,11 +50,12 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 }
 
-const char* PidCommand::Help()
+std::string PidCommand::Help()
 {
-    return "Usage: pid [pid]\n\n"
+    return std::string(
+        "Usage: pid [pid]\n\n"
         "If [pid] is passed, the program will use specified pid.\n"
-        "If no argument was passed then the currently used pid will be printed.\n";
+        "If no argument was passed then the currently used pid will be printed.\n");
 }
 
 

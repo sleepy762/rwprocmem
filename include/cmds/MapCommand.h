@@ -5,6 +5,6 @@ class MapCommand : public ICommand<MapCommand>
 {
 public:
     static void Main(Process& proc, const std::vector<std::string>& args);
-    static const char* Help();
+    static std::string Help();
 };
 

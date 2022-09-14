@@ -120,9 +120,10 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 }
 
-const char* WriteCommand::Help()
+std::string WriteCommand::Help()
 {
-    return "Usage: write <address> <type> <data>\n\n"
+    return std::string(
+        "Usage: write <address> <type> <data>\n\n"
         "Writes data to a given memory address.\n\n"
         "The <address> must be in hexadecimal.\n\n"
         "The <type> argument can be one of the following:\n"
@@ -130,6 +131,6 @@ const char* WriteCommand::Help()
         "The 'u' prefix tells the program to use the unsigned type.\n\n"
         "Data for [u]int8, [u]int16, [u]int32, [u]int64 can be written as decimal numbers or hexadecimal numbers.\n"
         "Data for float and double can be written as floating point numbers or hexadecimal numbers.\n"
-        "Data for string can only be a string.\n";
+        "Data for string can only be a string.\n");
 }
 

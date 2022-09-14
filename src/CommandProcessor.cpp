@@ -15,16 +15,16 @@
 #include "cmds/FindCommand.h"
 
 using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
-using CommandHelpFunc = const char* (*)();
+using CommandHelpFunc = std::string (*)();
 
-struct cmd_funcs_t
+struct CmdFuncs
 {
     CommandMainFunc MainFunc;
     CommandHelpFunc HelpFunc;
 };
 
 // All the commands are stored in this map
-static const std::unordered_map<std::string , cmd_funcs_t> cmdMap =
+static const std::unordered_map<std::string , CmdFuncs> cmdMap =
 {
     { "pid",  { &ICommand<PidCommand>::Main,  &ICommand<PidCommand>::Help } },
     { "map",  { &ICommand<MapCommand>::Main,  &ICommand<MapCommand>::Help } },
