@@ -32,9 +32,8 @@ namespace Utils
         T dataValue = 0;
         std::from_chars_result res;
 
-        size_t strLength = dataString.size();
         const char* dataStringStart = dataString.c_str();
-        const char* dataStringEnd = dataStringStart + strLength;
+        const char* dataStringEnd = dataStringStart + dataString.size();
 
         // Use hex if the input is in hex
         if (dataStringStart[0] == '0' && (dataStringStart[1] == 'x' || dataStringStart[1] == 'X'))
@@ -69,9 +68,8 @@ namespace Utils
         T dataValue = 0;
         std::from_chars_result res;
 
-        size_t strLength = dataString.size();
         const char* dataStringStart = dataString.c_str();
-        const char* dataStringEnd = dataStringStart + strLength;
+        const char* dataStringEnd = dataStringStart + dataString.size();
 
         // It also needs help with floating point numbers
         if (dataStringStart[0] == '0' && (dataStringStart[1] == 'x' || dataStringStart[1] == 'X'))
