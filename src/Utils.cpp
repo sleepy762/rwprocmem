@@ -12,7 +12,7 @@
 #include <memory>
 
 // Splits a string into a vector of strings
-std::vector<std::string> Utils::SplitString(const std::string& str, const char delim)
+std::vector<std::string> Utils::SplitString(const std::string& str, char delim)
 {
     std::vector<std::string> tokens;
     
@@ -32,7 +32,7 @@ std::vector<std::string> Utils::SplitString(const std::string& str, const char d
 
 // Returns the contents of /proc/.../cmdline if it's not empty
 // Otherwise returns the contents of /proc/.../comm
-std::string Utils::GetProcessCommand(const pid_t pid)
+std::string Utils::GetProcessCommand(pid_t pid)
 {
     const std::string basePath = "/proc/" + std::to_string(pid);
     const std::string cmdLinePath = basePath + "/cmdline";
@@ -114,8 +114,7 @@ static std::string GetErrorMessage(int err)
 // This function should be used when the requested memory region is readable (r permission is set)
 // process_vm_readv will fail if the region is not readable and ptrace should be used instead
 // TODO: create a ptrace alternative for both read and write functions
-std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
-        const long length)
+std::vector<uint8_t> Utils::ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length)
 {
     std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
 
@@ -145,8 +144,7 @@ std::vector<uint8_t> Utils::ReadProcessMemory(const pid_t pid, const unsigned lo
     return dataVec;
 }
 
-void Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
-            const long dataSize, void* data)
+void Utils::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data)
 {
     iovec local[1];
     local[0].iov_base = data;
@@ -168,8 +166,7 @@ void Utils::WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr,
     }
 }
 
-std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
-            const char joinChar)
+std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, int startIndex, char joinChar)
 {
     // Merge all the strings into 1 string
     std::string fullString = "";
@@ -188,8 +185,8 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, cons
 // Returns a vector of the memory regions where the given data was found
 // dataToFind can be of any type
 // dataSize is the size of the type / length of string (if string type is used)
-std::vector<MemAddress> Utils::FindDataInMemory(const pid_t pid, 
-        const std::vector<MemRegion>& memRegions, const size_t dataSize, const void* dataToFind)
+std::vector<MemAddress> Utils::FindDataInMemory(pid_t pid, 
+        const std::vector<MemRegion>& memRegions, size_t dataSize, const void* dataToFind)
 {
     // Vector of the memory addresses with the found data
     std::vector<MemAddress> addrs;

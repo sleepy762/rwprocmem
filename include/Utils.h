@@ -10,19 +10,17 @@
 
 namespace Utils
 {
-    std::vector<std::string> SplitString(const std::string& str, const char delim);
-    std::string GetProcessCommand(const pid_t pid);
+    std::vector<std::string> SplitString(const std::string& str, char delim);
+    std::string GetProcessCommand(pid_t pid);
 
-    std::vector<uint8_t> ReadProcessMemory(const pid_t pid, const unsigned long baseAddr,
-            const long length);
-    void WriteToProcessMemory(const pid_t pid, const unsigned long baseAddr, 
-            const long dataSize, void* data);
+    std::vector<uint8_t> ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length);
+    void WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data);
 
-    std::string JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
-            const char joinChar);
+    std::string JoinVectorOfStrings(const std::vector<std::string>& vec, int startIndex, 
+            char joinChar);
 
-    std::vector<MemAddress> FindDataInMemory(const pid_t pid, 
-            const std::vector<MemRegion>& memRegions, const size_t dataSize, const void* dataToFind);
+    std::vector<MemAddress> FindDataInMemory(pid_t pid, 
+            const std::vector<MemRegion>& memRegions, size_t dataSize, const void* dataToFind);
 
 
     // std::from_chars takes different arguments depending on if the type is integral or float
