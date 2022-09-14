@@ -34,7 +34,7 @@ void Process::SetProcessPid(pid_t pid)
     }
 }
 
-void Process::SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& addressRange) const
+void Process::SetMemoryRangeBoundaries(MemRegion& reg, const std::string& addressRange) const
 {
     reg.addressRangeStr = addressRange;
 
@@ -47,7 +47,7 @@ void Process::SetMemoryRangeBoundaries(mem_region_t& reg, const std::string& add
     reg.endAddr = std::stoul(addressTokens[1], nullptr, 16);
 }
 
-void Process::SetMemoryRegionPerms(mem_region_t& reg, const std::string& perms) const
+void Process::SetMemoryRegionPerms(MemRegion& reg, const std::string& perms) const
 {
     reg.permsStr = perms;
     reg.perms = { false, false, false, false }; // Empty initialization
@@ -80,7 +80,7 @@ pid_t Process::GetCurrentPid() const
     return this->m_pid;
 }
 
-const std::vector<mem_region_t> Process::GetMemoryRegions() const
+const std::vector<MemRegion> Process::GetMemoryRegions() const
 {
     // Make sure we are returning the most up to date memory region structs
     std::string processMapPath = "/proc/" + std::to_string(this->m_pid) + "/maps";
@@ -93,11 +93,11 @@ const std::vector<mem_region_t> Process::GetMemoryRegions() const
         throw std::runtime_error(errMsg);
     }
     
-    std::vector<mem_region_t> memRegions;
+    std::vector<MemRegion> memRegions;
     std::string line;
     while (std::getline(processMap, line))
     {
-        mem_region_t reg;
+        MemRegion reg;
         std::vector<std::string> tokens = Utils::SplitString(line, ' ');
         
         // The /proc/pid/maps file always has the same pattern, therefore:

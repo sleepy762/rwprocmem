@@ -188,11 +188,11 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, cons
 // Returns a vector of the memory regions where the given data was found
 // dataToFind can be of any type
 // dataSize is the size of the type / length of string (if string type is used)
-std::vector<mem_address_t> Utils::FindDataInMemory(const pid_t pid, 
-        const std::vector<mem_region_t>& memRegions, const size_t dataSize, const void* dataToFind)
+std::vector<MemAddress> Utils::FindDataInMemory(const pid_t pid, 
+        const std::vector<MemRegion>& memRegions, const size_t dataSize, const void* dataToFind)
 {
     // Vector of the memory addresses with the found data
-    std::vector<mem_address_t> addrs;
+    std::vector<MemAddress> addrs;
 
     for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
     {
@@ -219,7 +219,7 @@ std::vector<mem_address_t> Utils::FindDataInMemory(const pid_t pid,
             if (std::memcmp(dataToFind, offsetDataPtr, dataSize) == 0) // Check if the value is the same
             {
                 // Store the memory address where the data was found
-                mem_address_t addrStruct = { it->startAddr + i, *it };
+                MemAddress addrStruct = { it->startAddr + i, *it };
                 addrs.push_back(addrStruct);
             }
         }

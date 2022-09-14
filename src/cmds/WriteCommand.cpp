@@ -11,7 +11,7 @@ void WriteData(const Process& proc, const std::vector<std::string>& args)
 {
     // The data is in index 3, according to the syntax
     constexpr unsigned long dataTypeSize = sizeof(T);
-    T dataValue = Utils::StrToNumber<T>(args[3].c_str(), args[3].size());
+    T dataValue = Utils::StrToNumber<T>(args[3]);
 
     // The address is in index 1
     unsigned long baseAddr;

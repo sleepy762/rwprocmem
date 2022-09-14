@@ -10,17 +10,17 @@
 #include <cstring>
 
 template <typename T>
-std::vector<mem_address_t> FindData(const Process& proc, const std::vector<std::string>& args)
+std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::string>& args)
 {
     constexpr unsigned long dataTypeSize = sizeof(T); 
-    T dataValue = Utils::StrToNumber<T>(args[2].c_str(), args[2].size());
+    T dataValue = Utils::StrToNumber<T>(args[2]);
     
     return Utils::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
             dataTypeSize, &dataValue);
 }
 
 template <>
-std::vector<mem_address_t> FindData<std::string>(const Process& proc, const std::vector<std::string>& args)
+std::vector<MemAddress> FindData<std::string>(const Process& proc, const std::vector<std::string>& args)
 {
     // Data starts at index 2
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
@@ -37,7 +37,7 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Missing arguments.");
     }
 
-    std::vector<mem_address_t> foundAddrs;
+    std::vector<MemAddress> foundAddrs;
     const std::string& typeStr = args[1]; 
     if (typeStr[0] == 'i')
     {

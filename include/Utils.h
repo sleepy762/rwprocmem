@@ -6,7 +6,7 @@
 #include <concepts>
 #include <stdexcept>
 #include <charconv>
-#include "Process.h"
+#include "MemoryStructs.h"
 
 namespace Utils
 {
@@ -21,27 +21,30 @@ namespace Utils
     std::string JoinVectorOfStrings(const std::vector<std::string>& vec, const int startIndex, 
             const char joinChar);
 
-    std::vector<mem_address_t> FindDataInMemory(const pid_t pid, 
-            const std::vector<mem_region_t>& memRegions, const size_t dataSize, const void* dataToFind);
+    std::vector<MemAddress> FindDataInMemory(const pid_t pid, 
+            const std::vector<MemRegion>& memRegions, const size_t dataSize, const void* dataToFind);
 
 
     // std::from_chars takes different arguments depending on if the type is integral or float
     template <std::integral T>
-    T StrToNumber(const char* dataString, const size_t strLength)
+    T StrToNumber(const std::string& dataString)
     {
         T dataValue = 0;
-
         std::from_chars_result res;
-        // Help this function out
+
+        size_t strLength = dataString.size();
+        const char* dataStringStart = dataString.c_str();
+        const char* dataStringEnd = dataStringStart + strLength;
+
         // Use hex if the input is in hex
-        if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
+        if (dataStringStart[0] == '0' && (dataStringStart[1] == 'x' || dataStringStart[1] == 'X'))
         {
-            dataString += 2; // Move past the '0x'
-            res = std::from_chars(dataString, dataString + strLength - 2, dataValue, 16);
+            dataStringStart += 2; // Move past the '0x'
+            res = std::from_chars(dataStringStart, dataStringEnd, dataValue, 16);
         }
         else // Use generic conversion
         {
-            res = std::from_chars(dataString, dataString + strLength, dataValue);
+            res = std::from_chars(dataStringStart, dataStringEnd, dataValue);
         }
 
         // Error checking
@@ -52,25 +55,33 @@ namespace Utils
         else if (res.ec == std::errc::result_out_of_range)
         {
             throw std::runtime_error("Result of data conversion is out of range for the given type.");
+        }
+        else if (res.ptr != dataStringEnd)
+        {
+            throw std::runtime_error("Failed to fully convert the given data to a number.");
         }
         return dataValue;
     }
 
     template <std::floating_point T>
-    T StrToNumber(const char* dataString, const size_t strLength)
+    T StrToNumber(const std::string& dataString)
     {
         T dataValue = 0;
-        
         std::from_chars_result res;
+
+        size_t strLength = dataString.size();
+        const char* dataStringStart = dataString.c_str();
+        const char* dataStringEnd = dataStringStart + strLength;
+
         // It also needs help with floating point numbers
-        if (dataString[0] == '0' && (dataString[1] == 'x' || dataString[1] == 'X'))
+        if (dataStringStart[0] == '0' && (dataStringStart[1] == 'x' || dataStringStart[1] == 'X'))
         {
-            dataString += 2; // Move past the '0x'
-            res = std::from_chars(dataString, dataString + strLength - 2, dataValue, std::chars_format::hex);
+            dataStringStart += 2; // Move past the '0x'
+            res = std::from_chars(dataStringStart, dataStringEnd, dataValue, std::chars_format::hex);
         }
         else
         {
-            res = std::from_chars(dataString, dataString + strLength, dataValue);
+            res = std::from_chars(dataStringStart, dataStringEnd, dataValue);
         }
 
         // Error checking
@@ -81,6 +92,10 @@ namespace Utils
         else if (res.ec == std::errc::result_out_of_range)
         {
             throw std::runtime_error("Result of data conversion is out of range for the given type.");
+        }
+        else if (res.ptr != dataStringEnd)
+        {
+            throw std::runtime_error("Failed to fully convert the given data to a number.");
         }
         return dataValue;
     }
