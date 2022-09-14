@@ -3,9 +3,8 @@
 #include <cstdint>
 #include <exception>
 #include <stdexcept>
-#include <iostream>
-#include <iomanip>
 #include <cctype>
+#include <fmt/format.h>
 
 void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
@@ -44,7 +43,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
     {
         std::string printableData = ""; // Holds printable ASCII characters 
         // Output the memory address offset (memory address is 16 characters long)
-        std::cout << "0x" << std::hex << baseAddr + i << ": ";
+        fmt::print("{:#018x}: ", baseAddr + i);
 
         for (int j = 0; j < BYTES_PER_LINE; j++)
         {
@@ -56,17 +55,17 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
                 {
                     // Pad with 3 spaces because there is a space inbetween every hex byte
                     // and every hex byte takes 2 characters
-                    std::cout << "   ";
+                    fmt::print("   ");
                 }
                 break;
             }
             int byte = dataVec[i + j]; // Read a byte from the vector
-            std::cout << std::setfill('0') << std::setw(2) << byte << ' ';
+            fmt::print("{:02x} ", byte);
 
             // Save ASCII character, if it's printable
             printableData += std::isprint(byte) ? byte : '.';
         }
-        std::cout << std::dec << '|' << printableData << "|\n";
+        fmt::print("|{}|\n", printableData);
     }
 }
 

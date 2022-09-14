@@ -3,8 +3,8 @@
 #include "Process.h"
 #include <exception>
 #include <vector>
-#include <iostream>
 #include <stdexcept>
+#include <fmt/format.h>
 
 #include <unordered_map>
 #include "cmds/ICommand.h"
@@ -63,12 +63,12 @@ void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
             }
             catch (const std::exception& e)
             {
-                std::cout << command << ": " << e.what() << '\n';
+                fmt::print(stderr, "{}: {}\n", command, e.what());
             }
         }
         else
         {
-            std::cerr << "Command " << command << " not found.\n";
+            fmt::print(stderr, "Command {} not found.\n", command);
         }
     }
 }
@@ -87,10 +87,10 @@ void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
     if (command == "")
     {
         // Print all available commands if no argument was given
-        std::cout << "Available commands:\n";
+        fmt::print("Available commands:\n");
         for (auto i = cmdMap.cbegin(); i != cmdMap.cend(); i++)
         {
-            std::cout << "- " <<  i->first << '\n';
+            fmt::print("- {}\n", i->first);
         }
     }
     else // If an argument was given, find the command in the command map and execute the help function
@@ -98,11 +98,11 @@ void CommandProcessor::HelpCommand(const std::vector<std::string>& args)
         auto cmdFunctions = cmdMap.find(command);
         if (cmdFunctions == cmdMap.end())
         {
-            std::cerr << args[0] << ": command '" << command << "' not found or no help available.\n";
+            fmt::print(stderr, "{}: Command '{}' not found or no help available.\n", args[0], command);
         }
         else
         {
-            std::cout << '\n' << cmdFunctions->second.HelpFunc() << '\n';
+            fmt::print("\n{}\n", cmdFunctions->second.HelpFunc());
         }
     }
 }

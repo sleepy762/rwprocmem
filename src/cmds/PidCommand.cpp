@@ -1,7 +1,7 @@
 #include "cmds/PidCommand.h"
 #include <stdexcept>
-#include <iostream>
 #include <string>
+#include <fmt/format.h>
 #include "Utils.h"
 
 void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -21,12 +21,12 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
 
         if (currPid == 0)
         {
-            std::cout << "Currently not attached to any process.\n";
+            fmt::print("Currently not attached to any process.\n");
         }
         else
         {
             std::string procCmd = Utils::GetProcessCommand(currPid);
-            std::cout << "Process " << currPid << ": " << procCmd << '\n';
+            fmt::print("Process {}: {}\n", currPid, procCmd);
         }
     }
     else // Check if it's a valid pid and use it
@@ -43,10 +43,10 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         
         std::string procCmd = Utils::GetProcessCommand(newPid);
-        std::cout << "Process " << newPid << ": " << procCmd << '\n';
+        fmt::print("Process {}: {}\n", newPid, procCmd);
 
         proc.SetProcessPid(newPid);
-        std::cout << "Pid set to " << newPid << ".\n";
+        fmt::print("Pid set to {}.\n", newPid);
     }
 }
 

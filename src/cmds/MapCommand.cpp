@@ -1,7 +1,6 @@
 #include "cmds/MapCommand.h"
 #include <stdexcept>
-#include <iostream>
-#include <iomanip>
+#include <fmt/format.h>
 
 void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
@@ -14,22 +13,27 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
     const std::vector<MemRegion> memRegions = proc.GetMemoryRegions();
     if (memRegions.size() == 0)
     {
-        std::cout << "No memory regions were found.\n";
+        fmt::print("No memory regions were found.\n");
     }
     else
     {
         unsigned long totalMem = 0; // Total amount of bytes used
+        
+        // Gets the amount of digits in the number of memory regions
+        const size_t indexWidth = std::to_string(memRegions.size()).size();
 
         for (size_t i = 0; i < memRegions.size(); i++)
         {
             totalMem += memRegions[i].rangeLength;
 
-            std::cout << memRegions[i].addressRangeStr << '\t' <<
-                memRegions[i].rangeLength << " bytes\t" <<
-                memRegions[i].permsStr << '\t' <<
-                memRegions[i].pathName << '\n';
+            fmt::print("[{:{}}] {:#018x}-{:#018x}\t{} bytes\t{}\t{}\n", 
+                    i, indexWidth,
+                    memRegions[i].startAddr, memRegions[i].endAddr,
+                    memRegions[i].rangeLength,
+                    memRegions[i].permsStr,
+                    memRegions[i].pathName);
         }
-        std::cout << "\nTotal: " << totalMem << " bytes in " << memRegions.size() << " memory regions.\n";
+        fmt::print("\nTotal: {} bytes in {} memory regions.\n", totalMem, memRegions.size());
     }
 }
 

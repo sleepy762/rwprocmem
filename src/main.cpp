@@ -1,17 +1,19 @@
 #include <exception>
+#include <fmt/core.h>
 #include <string>
-#include <iostream>
 #include "CommandProcessor.h"
 #include "Process.h"
 #include <unistd.h>
+#include <iostream>
+#include <fmt/format.h>
 
 int main()
 {
-    std::cout << "rwprocmem v1.0.0\n";
-    std::cout << "Type 'help' to see a list of commands.\n";
+    fmt::print("rwprocmem v1.0.0\n");
+    fmt::print("Type 'help' to see a list of commands.\n");
     if (getuid() != 0)
     {
-        std::cout << "WARNING: not running as root, reading and writing to the memory of certain processes may not work.\n";
+        fmt::print("WARNING: not running as root, reading and writing to the memory of certain processes may not work.\n");
     }
 
     std::string input = "";
@@ -19,7 +21,7 @@ int main()
     Process proc;
     while (input != "exit")
     {
-        std::cout << "> ";
+        fmt::print("> ");
         if (!std::getline(std::cin, input))
         {
             break;
@@ -31,7 +33,7 @@ int main()
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << '\n';
+            fmt::print(stderr, "{}\n", e.what());
         }
     }
 

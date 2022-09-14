@@ -2,7 +2,6 @@
 #include "Utils.h"
 #include <cstdint>
 #include <exception>
-#include <iostream>
 #include <stdexcept>
 #include <sys/types.h>
 

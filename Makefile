@@ -2,7 +2,7 @@ CC = g++
 LD = g++
 
 CFLAGS = -Wall -Wextra -pedantic -Iinclude -O2 -std=c++20
-LDFLAGS = 
+LDFLAGS = -lfmt
 
 SRCS = $(wildcard src/*.cpp) $(wildcard src/cmds/*.cpp)
 OBJS = $(SRCS:.cpp=.o)

@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <cstring>
+#include <fmt/format.h>
 
 Process::Process()
 {
@@ -83,13 +84,13 @@ pid_t Process::GetCurrentPid() const
 const std::vector<MemRegion> Process::GetMemoryRegions() const
 {
     // Make sure we are returning the most up to date memory region structs
-    std::string processMapPath = "/proc/" + std::to_string(this->m_pid) + "/maps";
+    std::string processMapPath = fmt::format("/proc/{}/maps", this->m_pid);
     std::ifstream processMap(processMapPath);
 
     if (!processMap.is_open())
     {
-        const std::string errMsg = "Failed to open the maps for pid " + std::to_string(this->m_pid)
-            + ": " + strerror(errno);
+        const std::string errMsg = fmt::format("Failed to open the maps for pid {}: {}.", 
+                this->m_pid, std::strerror(errno));
         throw std::runtime_error(errMsg);
     }
     

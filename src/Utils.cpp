@@ -1,6 +1,5 @@
 #include "Utils.h"
 #include "Process.h"
-#include <iostream>
 #include <cstdint>
 #include <sstream>
 #include <stdexcept>
@@ -10,6 +9,7 @@
 #include <cstring>
 #include <sys/uio.h>
 #include <memory>
+#include <fmt/format.h>
 
 // Splits a string into a vector of strings
 std::vector<std::string> Utils::SplitString(const std::string& str, char delim)
@@ -34,13 +34,13 @@ std::vector<std::string> Utils::SplitString(const std::string& str, char delim)
 // Otherwise returns the contents of /proc/.../comm
 std::string Utils::GetProcessCommand(pid_t pid)
 {
-    const std::string basePath = "/proc/" + std::to_string(pid);
-    const std::string cmdLinePath = basePath + "/cmdline";
+    const std::string basePath = fmt::format("/proc/{}", pid);
+    const std::string cmdLinePath = fmt::format("{}/cmdline", basePath);
 
     std::ifstream cmdLineFile(cmdLinePath);
     if (!cmdLineFile.is_open())
     {
-        const std::string err = "Failed to open file '" + cmdLinePath + "': " + std::strerror(errno);
+        const std::string err = fmt::format("Failed to open file '{}': {}.", cmdLinePath, std::strerror(errno));
         throw std::runtime_error(err);
     }
 
@@ -55,12 +55,12 @@ std::string Utils::GetProcessCommand(pid_t pid)
     }
     cmdLineFile.close();
 
-    const std::string commPath = basePath + "/comm";
+    const std::string commPath = fmt::format("{}/comm", basePath);
 
     std::ifstream commFile(commPath);
     if (!commFile.is_open())
     {
-        const std::string err = "Failed to open file '" + commPath + "': " + std::strerror(errno);
+        const std::string err = fmt::format("Failed to open file '{}': {}.", commPath, std::strerror(errno));
         throw std::runtime_error(err);
     }
 
@@ -129,12 +129,11 @@ std::vector<uint8_t> Utils::ReadProcessMemory(pid_t pid, unsigned long baseAddr,
     ssize_t nread = process_vm_readv(pid, local, 1, remote, 1, 0);
     if (nread < 0)
     {
-        std::string errMsg = GetErrorMessage(errno);
-        throw std::runtime_error(errMsg);
+        throw std::runtime_error(GetErrorMessage(errno));
     }
     else if (nread != length)
     {
-        std::cout << "WARNING: Partial read. Read " << nread << '/' << length << " bytes.\n";
+        fmt::print("WARNING: Partial read of {}/{} bytes.\n", nread, length);
     }
 
     std::vector<uint8_t> dataVec;
@@ -157,12 +156,11 @@ void Utils::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSiz
     ssize_t nread = process_vm_writev(pid, local, 1, remote, 1, 0);
     if (nread < 0)
     {
-        std::string errMsg = GetErrorMessage(errno);
-        throw std::runtime_error(errMsg);
+        throw std::runtime_error(GetErrorMessage(errno));
     }
     else if (nread != dataSize)
     {
-        std::cout << "WARNING: Partial write. Written " << nread << '/' << dataSize << " bytes.\n";
+        fmt::print("WARNING: Partial write of {}/{} bytes.\n", nread, dataSize);
     }
 }
 

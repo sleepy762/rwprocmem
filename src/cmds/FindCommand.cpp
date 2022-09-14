@@ -6,8 +6,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <iostream>
 #include <cstring>
+#include <fmt/format.h>
 
 template <typename T>
 std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::string>& args)
@@ -102,11 +102,14 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Invalid type.");
     }
 
+    // Gets the amount of digits in the number of found addresses
+    const size_t indexWidth = std::to_string(foundAddrs.size()).size();
+
     for (auto it = foundAddrs.cbegin(); it != foundAddrs.cend(); it++)
     {
         int index = it - foundAddrs.cbegin();
-        std::cout << '[' << index << "] 0x" << std::hex << it->address << 
-            " [" << it->memRegion.permsStr << std::dec << "] (in " << it->memRegion.pathName << ")\n";
+        fmt::print("[{:{}}] {:#018x} [{}] (in {})\n",
+                index, indexWidth, it->address, it->memRegion.permsStr, it->memRegion.pathName);
     }
 }
 std::string FindCommand::Help()
