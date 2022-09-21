@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <sys/types.h>
 #include "DataType.h"
+#include "MemoryFuncs.h"
 
 template <typename T>
 void WriteData(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
@@ -12,7 +13,7 @@ void WriteData(pid_t pid, unsigned long baseAddr, const std::vector<std::string>
     constexpr unsigned long dataTypeSize = sizeof(T);
     T dataValue = Utils::StrToNumber<T>(args[3]);
 
-    Utils::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
+    MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
 }
 
 // Accepts string
@@ -23,7 +24,7 @@ void WriteData<std::string>(pid_t pid, unsigned long baseAddr, const std::vector
     std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
     const long dataSize = fullData.size();
 
-    Utils::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
+    MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
 }
 
 void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)

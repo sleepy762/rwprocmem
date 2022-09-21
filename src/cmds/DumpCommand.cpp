@@ -1,10 +1,10 @@
 #include "cmds/DumpCommand.h"
-#include "Utils.h"
 #include <cstdint>
 #include <exception>
 #include <stdexcept>
 #include <cctype>
 #include <fmt/core.h>
+#include "MemoryFuncs.h"
 
 void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
@@ -35,7 +35,7 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::invalid_argument("Invalid length.");
     }
 
-    const std::vector<uint8_t> dataVec = Utils::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
+    const std::vector<uint8_t> dataVec = MemoryFuncs::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
     const size_t dataLen = dataVec.size();
     constexpr int BYTES_PER_LINE = 16;
 

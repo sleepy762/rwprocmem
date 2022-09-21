@@ -1,27 +1,18 @@
 #pragma once
-#include <cstdint>
 #include <string>
 #include <vector>
 #include <sys/types.h>
 #include <concepts>
 #include <stdexcept>
 #include <charconv>
-#include "MemoryStructs.h"
 
 namespace Utils
 {
     std::vector<std::string> SplitString(const std::string& str, char delim);
     std::string GetProcessCommand(pid_t pid);
 
-    std::vector<uint8_t> ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length);
-    void WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data);
-
     std::string JoinVectorOfStrings(const std::vector<std::string>& vec, int startIndex, 
             char joinChar);
-
-    std::vector<MemAddress> FindDataInMemory(pid_t pid, 
-            const std::vector<MemRegion>& memRegions, size_t dataSize, const void* dataToFind);
-
 
     // std::from_chars takes different arguments depending on if the type is integral or float
     template <std::integral T>

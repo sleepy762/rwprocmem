@@ -7,6 +7,7 @@
 #include <vector>
 #include <fmt/core.h>
 #include "DataType.h"
+#include "MemoryFuncs.h"
 
 template <typename T>
 std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::string>& args)
@@ -14,7 +15,7 @@ std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::str
     constexpr unsigned long dataTypeSize = sizeof(T); 
     T dataValue = Utils::StrToNumber<T>(args[2]);
     
-    return Utils::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
+    return MemoryFuncs::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
             dataTypeSize, &dataValue);
 }
 
@@ -25,7 +26,7 @@ std::vector<MemAddress> FindData<std::string>(const Process& proc, const std::ve
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
     const size_t fullStringLen = fullString.size();
 
-    return Utils::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(),
+    return MemoryFuncs::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(),
             fullStringLen, fullString.c_str());
 }
 
