@@ -51,7 +51,7 @@ void Process::SetMemoryRangeBoundaries(MemRegion& reg, const std::string& addres
 void Process::SetMemoryRegionPerms(MemRegion& reg, const std::string& perms) const
 {
     reg.permsStr = perms;
-    reg.perms = { false, false, false, false }; // Empty initialization
+    reg.perms = { false, false, false, false }; // Default initialization
 
     // The structure of the permissions string is constant and when all
     // permissions are set looks like this: rwxp

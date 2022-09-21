@@ -43,10 +43,10 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         
         std::string procCmd = Utils::GetProcessCommand(newPid);
-        fmt::print("Process {}: {}\n", newPid, procCmd);
-
         proc.SetProcessPid(newPid);
-        fmt::print("Pid set to {}.\n", newPid);
+
+        fmt::print("Process {}: {}\n"
+                   "New pid set.\n", newPid, procCmd);
     }
 }
 

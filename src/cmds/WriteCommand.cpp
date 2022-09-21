@@ -60,6 +60,7 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
         case DataType::f32:    WriteData<float>(pid, baseAddr, args);       break;
         case DataType::f64:    WriteData<double>(pid, baseAddr, args);      break;
         case DataType::string: WriteData<std::string>(pid, baseAddr, args); break;
+        // No default: so that the compiler can generate a warning for us in case we forget something.
     }
 }
 
