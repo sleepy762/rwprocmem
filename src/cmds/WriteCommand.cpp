@@ -1,6 +1,5 @@
 #include "cmds/WriteCommand.h"
 #include "Utils.h"
-#include <cstdint>
 #include <exception>
 #include <stdexcept>
 #include <sys/types.h>

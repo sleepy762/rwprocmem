@@ -4,12 +4,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <algorithm>
 #include <fstream>
 #include <cstring>
 #include <sys/uio.h>
 #include <memory>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 // Splits a string into a vector of strings
 std::vector<std::string> Utils::SplitString(const std::string& str, char delim)

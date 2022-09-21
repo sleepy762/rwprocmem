@@ -1,13 +1,11 @@
 #include "cmds/FindCommand.h"
 #include "Process.h"
 #include "Utils.h"
-#include <cstdint>
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <cstring>
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include "DataType.h"
 
 template <typename T>

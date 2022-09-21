@@ -1,6 +1,6 @@
 #include "cmds/MapCommand.h"
 #include <stdexcept>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
 {

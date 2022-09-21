@@ -1,11 +1,10 @@
 #include <exception>
-#include <fmt/core.h>
 #include <string>
 #include "CommandProcessor.h"
 #include "Process.h"
 #include <unistd.h>
 #include <iostream>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 int main()
 {

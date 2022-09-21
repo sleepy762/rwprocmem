@@ -4,7 +4,7 @@
 #include <exception>
 #include <stdexcept>
 #include <cctype>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {

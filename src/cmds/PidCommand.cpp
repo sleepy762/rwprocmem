@@ -1,7 +1,7 @@
 #include "cmds/PidCommand.h"
 #include <stdexcept>
 #include <string>
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include "Utils.h"
 
 void PidCommand::Main(Process& proc, const std::vector<std::string>& args)

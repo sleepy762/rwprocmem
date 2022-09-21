@@ -3,8 +3,7 @@
 #include "Process.h"
 #include <exception>
 #include <vector>
-#include <stdexcept>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 #include <unordered_map>
 #include "cmds/ICommand.h"

@@ -5,8 +5,7 @@
 #include <unistd.h>
 #include <stdexcept>
 #include <fstream>
-#include <cstring>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 Process::Process()
 {
