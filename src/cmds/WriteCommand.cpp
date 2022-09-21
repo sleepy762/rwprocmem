@@ -4,13 +4,35 @@
 #include <exception>
 #include <stdexcept>
 #include <sys/types.h>
+#include "DataType.h"
 
 template <typename T>
-void WriteData(const Process& proc, const std::vector<std::string>& args)
+void WriteData(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
 {
     // The data is in index 3, according to the syntax
     constexpr unsigned long dataTypeSize = sizeof(T);
     T dataValue = Utils::StrToNumber<T>(args[3]);
+
+    Utils::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
+}
+
+// Accepts string
+template <>
+void WriteData<std::string>(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
+{
+    // Data starts at index 3
+    std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
+    const long dataSize = fullData.size();
+
+    Utils::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
+}
+
+void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
+{
+    if (args.size() < 4)
+    {
+        throw std::runtime_error("Missing arguments.");
+    }
 
     // The address is in index 1
     unsigned long baseAddr;
@@ -23,99 +45,21 @@ void WriteData(const Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Invalid address.");
     }
 
-    Utils::WriteToProcessMemory(proc.GetCurrentPid(), baseAddr, dataTypeSize, &dataValue);
-}
-
-// Accepts string
-template <>
-void WriteData<std::string>(const Process& proc, const std::vector<std::string>& args)
-{
-    // Data starts at index 3
-    std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
-    const long dataSize = fullData.size();
-
-    unsigned long baseAddr;
-    try
-    {
-        baseAddr = std::stoul(args[1], nullptr, 16);
-    }
-    catch (const std::exception& e)
-    {
-        throw std::runtime_error("Invalid address.");
-    }
-
-    Utils::WriteToProcessMemory(proc.GetCurrentPid(), baseAddr, dataSize, (void*)fullData.c_str());
-}
-
-void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
-{
-    if (args.size() < 4)
-    {
-        throw std::runtime_error("Missing arguments.");
-    }
-
+    const pid_t pid = proc.GetCurrentPid();
     const std::string& typeStr = args[2];
-    if (typeStr[0] == 'i') // Signed integers
+    switch (ParseDataType(typeStr))
     {
-        if (typeStr == "int8")
-        {
-            WriteData<int8_t>(proc, args);
-        }
-        else if (typeStr == "int16")
-        {
-            WriteData<int16_t>(proc, args);
-        }
-        else if (typeStr == "int32")
-        {
-            WriteData<int32_t>(proc, args);
-        }
-        else if (typeStr == "int64")
-        {
-            WriteData<int64_t>(proc, args);
-        }
-        else
-        {
-            throw std::invalid_argument("Invalid signed type.");
-        }
-    }
-    else if (typeStr[0] == 'u') // Unsigned integers
-    {
-        if (typeStr == "uint8")
-        {
-            WriteData<uint8_t>(proc, args);
-        }
-        else if (typeStr == "uint16")
-        {
-            WriteData<uint16_t>(proc, args);
-        }
-        else if (typeStr == "uint32")
-        {
-            WriteData<uint32_t>(proc, args);
-        }
-        else if (typeStr == "uint64")
-        {
-            WriteData<uint64_t>(proc, args);
-        }
-        else
-        {
-            throw std::invalid_argument("Invalid unsigned type.");
-        }
-    }
-    else if (typeStr == "float")
-    {
-        WriteData<float>(proc, args);
-    }
-    else if (typeStr == "double")
-    {
-        WriteData<double>(proc, args);
-    }
-    else if (typeStr == "string")
-    {
-        WriteData<std::string>(proc, args);
-    }
-    else
-    {
-        throw std::invalid_argument("Invalid type.");
+        case DataType::int8:   WriteData<int8_t>(pid, baseAddr, args);      break;
+        case DataType::int16:  WriteData<int16_t>(pid, baseAddr, args);     break;
+        case DataType::int32:  WriteData<int32_t>(pid, baseAddr, args);     break;
+        case DataType::int64:  WriteData<int64_t>(pid, baseAddr, args);     break;
+        case DataType::uint8:  WriteData<uint8_t>(pid, baseAddr, args);     break;
+        case DataType::uint16: WriteData<uint16_t>(pid, baseAddr, args);    break;
+        case DataType::uint32: WriteData<uint32_t>(pid, baseAddr, args);    break;
+        case DataType::uint64: WriteData<uint64_t>(pid, baseAddr, args);    break;
+        case DataType::f32:    WriteData<float>(pid, baseAddr, args);       break;
+        case DataType::f64:    WriteData<double>(pid, baseAddr, args);      break;
+        case DataType::string: WriteData<std::string>(pid, baseAddr, args); break;
     }
 }
 

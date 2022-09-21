@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstring>
 #include <fmt/format.h>
+#include "DataType.h"
 
 template <typename T>
 std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::string>& args)
@@ -39,67 +40,21 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
 
     std::vector<MemAddress> foundAddrs;
     const std::string& typeStr = args[1]; 
-    if (typeStr[0] == 'i')
+
+    switch (ParseDataType(typeStr))
     {
-        if (typeStr == "int8")
-        {
-            foundAddrs = FindData<int8_t>(proc, args);
-        }
-        else if (typeStr == "int16")
-        {
-            foundAddrs = FindData<int16_t>(proc, args);
-        }
-        else if (typeStr == "int32")
-        {
-            foundAddrs = FindData<int32_t>(proc, args);
-        }
-        else if (typeStr == "int64")
-        {
-            foundAddrs = FindData<int64_t>(proc, args);
-        }
-        else
-        {
-            throw std::runtime_error("Invalid signed type.");
-        }
-    }
-    else if (typeStr[0] == 'u')
-    {
-        if (typeStr == "uint8")
-        {
-            foundAddrs = FindData<uint8_t>(proc, args);
-        }
-        else if (typeStr == "uint16")
-        {
-            foundAddrs = FindData<uint16_t>(proc, args);
-        }
-        else if (typeStr == "uint32")
-        {
-            foundAddrs = FindData<uint32_t>(proc, args);
-        }
-        else if (typeStr == "uint64")
-        {
-            foundAddrs = FindData<uint64_t>(proc, args);
-        }
-        else
-        {
-            throw std::runtime_error("Invalid unsigned type.");
-        }
-    }
-    else if (typeStr == "float")
-    {
-        foundAddrs = FindData<float>(proc, args);
-    }
-    else if (typeStr == "double")
-    {
-        foundAddrs = FindData<double>(proc, args);
-    }
-    else if (typeStr == "string")
-    {
-        foundAddrs = FindData<std::string>(proc, args);
-    }
-    else
-    {
-        throw std::runtime_error("Invalid type.");
+        case DataType::int8:    foundAddrs = FindData<int8_t>(proc, args);      break;
+        case DataType::int16:   foundAddrs = FindData<int16_t>(proc, args);     break;
+        case DataType::int32:   foundAddrs = FindData<int32_t>(proc, args);     break;
+        case DataType::int64:   foundAddrs = FindData<int64_t>(proc, args);     break;
+        case DataType::uint8:   foundAddrs = FindData<uint8_t>(proc, args);     break;
+        case DataType::uint16:  foundAddrs = FindData<uint16_t>(proc, args);    break;
+        case DataType::uint32:  foundAddrs = FindData<uint32_t>(proc, args);    break;
+        case DataType::uint64:  foundAddrs = FindData<uint64_t>(proc, args);    break;
+        case DataType::f32:     foundAddrs = FindData<float>(proc, args);       break;
+        case DataType::f64:     foundAddrs = FindData<double>(proc, args);      break;
+        case DataType::string:  foundAddrs = FindData<std::string>(proc, args); break;
+        // No default: so that the compiler can generate a warning for us in case we forget something.
     }
 
     // Gets the amount of digits in the number of found addresses
