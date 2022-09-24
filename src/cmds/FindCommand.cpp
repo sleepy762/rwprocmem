@@ -63,10 +63,13 @@ std::string FindCommand::Help()
 {
     return std::string(
         "Usage: find <type> <data>\n\n"
+
         "Lists the memory addresses where the given data was found.\n\n"
+
         "The <type> argument can be one of the following:\n"
         "[u]int8, [u]int16, [u]int32, [u]int64, float, double, string\n"
         "The 'u' prefix tells the program to use the unsigned type.\n\n"
+
         "Data for [u]int8, [u]int16, [u]int32, [u]int64 can be written as decimal numbers or hexadecimal numbers.\n"
         "Data for float and double can be written as floating point numbers or hexadecimal numbers.\n"
         "Data for string can only be a string.\n");

@@ -73,6 +73,7 @@ std::string DumpCommand::Help()
 {
     return std::string(
         "Usage: dump <address> <length>\n\n"
+
         "Ouputs a hex dump with the given length of the data in the given address.\n"
         "The memory address has to be in hexadecimal.\n");
 }

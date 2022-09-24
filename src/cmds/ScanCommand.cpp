@@ -99,17 +99,18 @@ void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
 std::string ScanCommand::Help()
 {
     return std::string(
-        "Usage: scan <keyword> [type] [arg]\n\n"
+        "Usage: scan <keyword> [type] [value]\n\n"
 
         "Scans the memory of a process and keeps track of the addresses where the value was found.\n"
         "Subsequent scans check the values in the saved memory addresses.\n\n"
+
         "Keywords with no args required:\n"
         "clear -- Clears the saved addresses.\n"
         "undo -- Undo the last scan. (depth of 1 scan)\n"
         "list -- List the saved memory addresses.\n\n"
 
-        "Keywords that require type and arg:\n"
-        "== -- Scans for an exact <value> of the given <type>.\n"
+        "Keywords that require type and value:\n"
+        "== -- Scans for addresses with a value equal to <value> in the given <type>.\n"
         "!= -- Scans for addresses which do not have <value>.\n"
         "> -- Scans for addresses where the value is greater than the given <value>.\n"
         "< -- Scans for addresses where the value is less than the given <value>.\n"

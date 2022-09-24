@@ -15,12 +15,14 @@ namespace MemoryFuncs
     std::vector<uint8_t> ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length);
     void WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data);
     
+    // Compares two values based on the given comparison type
     template <typename T>
-    bool CompareMemoryData(const void* lhs, const void* rhs, size_t dataSize,
+    bool CompareData(const void* lhs, const void* rhs, size_t dataSize,
             ComparisonType cmpType)
     {
-        (void)dataSize;
+        (void)dataSize; // Used only in the std::string specialization
 
+        // Cast the void pointers into values
         T lhsVal = *(T*)lhs;
         T rhsVal = *(T*)rhs;
         switch (cmpType)
@@ -49,7 +51,7 @@ namespace MemoryFuncs
     }
 
     template <>
-    bool CompareMemoryData<std::string>(const void* lhs, const void* rhs, 
+    bool CompareData<std::string>(const void* lhs, const void* rhs, 
             size_t dataSize, ComparisonType cmpType);
 
     // Returns a vector of the memory addresses where the given data was found
@@ -94,7 +96,7 @@ namespace MemoryFuncs
                 }
 
                 const unsigned char* offsetDataPtr = dataPtr + i;
-                if (MemoryFuncs::CompareMemoryData<T>(dataToFind, (void*)offsetDataPtr, dataSize, cmpType))
+                if (MemoryFuncs::CompareData<T>(dataToFind, (void*)offsetDataPtr, dataSize, cmpType))
                 {
                     // Store the memory address where the data was found
                     MemAddress addrStruct = { it->startAddr + i, *it };
@@ -134,7 +136,7 @@ namespace MemoryFuncs
                 continue;
             }
 
-            if (MemoryFuncs::CompareMemoryData<T>(dataToFind, (void*)&addrMemory[0], dataSize, cmpType))
+            if (MemoryFuncs::CompareData<T>(dataToFind, (void*)&addrMemory[0], dataSize, cmpType))
             {
                 addrs.push_back(*it);
             }

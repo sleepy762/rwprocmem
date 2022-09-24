@@ -91,15 +91,13 @@ void MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long d
 }
 
 template <>
-bool MemoryFuncs::CompareMemoryData<std::string>(const void* lhs, const void* rhs, 
+bool MemoryFuncs::CompareData<std::string>(const void* lhs, const void* rhs, 
             size_t dataSize, ComparisonType cmpType)
 {
-    // Comparing string for equality is the only supported comparison type
     if (cmpType != ComparisonType::Equal)
     {
-        throw std::runtime_error("String comparison can only use the 'Equal' type.");
+        throw std::runtime_error("Comparing strings for equality is the only supported comparison type.");
     }
-
     return std::memcmp(lhs, rhs, dataSize) == 0;
 }
 

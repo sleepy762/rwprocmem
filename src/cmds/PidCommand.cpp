@@ -54,6 +54,7 @@ std::string PidCommand::Help()
 {
     return std::string(
         "Usage: pid [pid]\n\n"
+
         "If [pid] is passed, the program will use specified pid.\n"
         "If no argument was passed then the currently used pid will be printed.\n");
 }

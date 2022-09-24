@@ -11,7 +11,7 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 
     const std::vector<MemRegion> memRegions = proc.GetMemoryRegions();
-    if (memRegions.size() == 0)
+    if (memRegions.empty())
     {
         fmt::print("No memory regions were found.\n");
     }
@@ -41,6 +41,7 @@ std::string MapCommand::Help()
 {
     return std::string(
         "Usage: map\n\n"
+
         "If attached to a process, print the memory regions map (/proc/pid/maps)\n"
         "The fields are the following in order:\n"
         "<memory address range> <range length> <permissions> <pathname>\n");
