@@ -87,3 +87,16 @@ std::string Utils::JoinVectorOfStrings(const std::vector<std::string>& vec, int 
     return fullString;
 }
 
+void Utils::PrintMemoryAddresses(const std::vector<MemAddress>& memAddrs)
+{
+    // Gets the amount of digits in the number of found addresses
+    const size_t indexWidth = std::to_string(memAddrs.size()).size();
+
+    for (auto it = memAddrs.cbegin(); it != memAddrs.cend(); it++)
+    {
+        int index = it - memAddrs.cbegin();
+        fmt::print("[{:{}}] {:#018x} [{}] (in {})\n",
+                index, indexWidth, it->address, it->memRegion.permsStr, it->memRegion.pathName);
+    }
+}
+

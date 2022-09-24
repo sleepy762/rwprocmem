@@ -90,45 +90,16 @@ void MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long d
     }
 }
 
-// Returns a vector of the memory regions where the given data was found
-// dataToFind can be of any type
-// dataSize is the size of the type / length of string (if string type is used)
-std::vector<MemAddress> MemoryFuncs::FindDataInMemory(pid_t pid, 
-        const std::vector<MemRegion>& memRegions, size_t dataSize, const void* dataToFind)
+template <>
+bool MemoryFuncs::CompareMemoryData<std::string>(const void* lhs, const void* rhs, 
+            size_t dataSize, ComparisonType cmpType)
 {
-    // Vector of the memory addresses with the found data
-    std::vector<MemAddress> addrs;
-
-    for (auto it = memRegions.cbegin(); it != memRegions.cend(); it++)
+    // Comparing string for equality is the only supported comparison type
+    if (cmpType != ComparisonType::Equal)
     {
-        // Skip unreadable memory regions
-        if (!it->perms.readFlag)
-        {
-            continue;
-        }
-        
-        // TODO: implement a limit on how much memory can be read at a time
-        std::vector<uint8_t> regMemory = MemoryFuncs::ReadProcessMemory(pid, it->startAddr, it->rangeLength);
-
-        // The vector is a contiguous array in memory so we can do this
-        const unsigned char* dataPtr = &regMemory[0];
-        for (unsigned long i = 0; i < regMemory.size(); i++)
-        {
-            // We always want to have at least dataTypeSize bytes
-            if (regMemory.size() - i < dataSize)
-            {
-                break;
-            }
-
-            const unsigned char* offsetDataPtr = dataPtr + i;
-            if (std::memcmp(dataToFind, offsetDataPtr, dataSize) == 0) // Check if the value is the same
-            {
-                // Store the memory address where the data was found
-                MemAddress addrStruct = { it->startAddr + i, *it };
-                addrs.push_back(addrStruct);
-            }
-        }
+        throw std::runtime_error("String comparison can only use the 'Equal' type.");
     }
-    return addrs;
+
+    return std::memcmp(lhs, rhs, dataSize) == 0;
 }
 

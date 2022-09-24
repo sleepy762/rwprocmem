@@ -5,6 +5,7 @@
 #include <concepts>
 #include <stdexcept>
 #include <charconv>
+#include "MemoryStructs.h"
 
 namespace Utils
 {
@@ -14,18 +15,19 @@ namespace Utils
     std::string JoinVectorOfStrings(const std::vector<std::string>& vec, int startIndex, 
             char joinChar);
 
+    void PrintMemoryAddresses(const std::vector<MemAddress>& memAddrs);
 
     // These function templates are very thin wrappers around std::from_chars
     // std::from_chars is actually unable to detect whether a number is in hex
     // so we have to explicitly call the function with a base 16/hex argument
     template <std::integral T>
-    std::from_chars_result from_chars_hex(const char* start, const char* end, T& value)
+    inline std::from_chars_result from_chars_hex(const char* start, const char* end, T& value)
     {
         return std::from_chars(start, end, value, 16);
     }
 
     template <std::floating_point T>
-    std::from_chars_result from_chars_hex(const char* start, const char* end, T& value)
+    inline std::from_chars_result from_chars_hex(const char* start, const char* end, T& value)
     {
         return std::from_chars(start, end, value, std::chars_format::hex);
     }

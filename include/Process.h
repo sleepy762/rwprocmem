@@ -3,6 +3,7 @@
 #include <vector>
 #include <sys/types.h>
 #include "MemoryStructs.h"
+#include "MemoryScanner.h"
 
 class Process
 {
@@ -15,9 +16,11 @@ public:
 
     pid_t GetCurrentPid() const;
     const std::vector<MemRegion> GetMemoryRegions() const;
+    MemoryScanner& GetMemoryScanner();
 
 private:
     pid_t m_pid;
+    MemoryScanner m_MemoryScanner;
 
     void UpdateMemoryRegions();
 

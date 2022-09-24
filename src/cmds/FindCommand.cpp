@@ -1,4 +1,5 @@
 #include "cmds/FindCommand.h"
+#include "ComparisonType.h"
 #include "Process.h"
 #include "Utils.h"
 #include <exception>
@@ -15,8 +16,8 @@ std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::str
     constexpr unsigned long dataTypeSize = sizeof(T); 
     T dataValue = Utils::StrToNumber<T>(args[2]);
     
-    return MemoryFuncs::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
-            dataTypeSize, &dataValue);
+    return MemoryFuncs::FindDataInMemory<T>(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
+            dataTypeSize, &dataValue, ComparisonType::Equal);
 }
 
 template <>
@@ -26,8 +27,8 @@ std::vector<MemAddress> FindData<std::string>(const Process& proc, const std::ve
     const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
     const size_t fullStringLen = fullString.size();
 
-    return MemoryFuncs::FindDataInMemory(proc.GetCurrentPid(), proc.GetMemoryRegions(),
-            fullStringLen, fullString.c_str());
+    return MemoryFuncs::FindDataInMemory<std::string>(proc.GetCurrentPid(), proc.GetMemoryRegions(),
+            fullStringLen, fullString.c_str(), ComparisonType::Equal);
 }
 
 void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -56,15 +57,7 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
         // No default: so that the compiler can generate a warning for us in case we forget something.
     }
 
-    // Gets the amount of digits in the number of found addresses
-    const size_t indexWidth = std::to_string(foundAddrs.size()).size();
-
-    for (auto it = foundAddrs.cbegin(); it != foundAddrs.cend(); it++)
-    {
-        int index = it - foundAddrs.cbegin();
-        fmt::print("[{:{}}] {:#018x} [{}] (in {})\n",
-                index, indexWidth, it->address, it->memRegion.permsStr, it->memRegion.pathName);
-    }
+    Utils::PrintMemoryAddresses(foundAddrs);
 }
 std::string FindCommand::Help()
 {

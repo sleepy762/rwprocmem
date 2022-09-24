@@ -12,6 +12,7 @@
 #include "cmds/DumpCommand.h"
 #include "cmds/WriteCommand.h"
 #include "cmds/FindCommand.h"
+#include "cmds/ScanCommand.h"
 
 using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
 using CommandHelpFunc = std::string (*)();
@@ -29,7 +30,8 @@ static const std::unordered_map<std::string , CmdFuncs> cmdMap =
     { "map",  { &ICommand<MapCommand>::Main,  &ICommand<MapCommand>::Help } },
     { "dump", { &ICommand<DumpCommand>::Main, &ICommand<DumpCommand>::Help } },
     { "write", { &ICommand<WriteCommand>::Main, &ICommand<WriteCommand>::Help } },
-    { "find", { &ICommand<FindCommand>::Main, &ICommand<FindCommand>::Help } }
+    { "find", { &ICommand<FindCommand>::Main, &ICommand<FindCommand>::Help } },
+    { "scan", { &ICommand<ScanCommand>::Main, &ICommand<ScanCommand>::Help } }
 };
 
 

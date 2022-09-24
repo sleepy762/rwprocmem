@@ -10,6 +10,7 @@
 Process::Process()
 {
     this->m_pid = 0;
+    this->m_MemoryScanner = MemoryScanner();
 }
 
 Process::Process(pid_t pid)
@@ -27,6 +28,7 @@ void Process::SetProcessPid(pid_t pid)
     if (pid > 0 && pid != getpid())
     {
         this->m_pid = pid;
+        this->m_MemoryScanner.SetPid(pid);
     }
     else
     {
@@ -141,5 +143,10 @@ const std::vector<MemRegion> Process::GetMemoryRegions() const
         memRegions.push_back(reg);
     }
     return memRegions;
+}
+
+MemoryScanner& Process::GetMemoryScanner()
+{
+    return this->m_MemoryScanner;
 }
 
