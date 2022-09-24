@@ -21,7 +21,7 @@ namespace MemoryFuncs
     {
         (void)dataSize;
 
-        T lhsVal= *(T*)lhs;
+        T lhsVal = *(T*)lhs;
         T rhsVal = *(T*)rhs;
         switch (cmpType)
         {
