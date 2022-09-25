@@ -95,7 +95,8 @@ std::vector<MemAddress> MemoryFuncs::FindDataInMemory(pid_t pid, const std::vect
         }
         catch (const std::exception& e)
         {
-            fmt::print(stderr, "Error reading memory region {:#018x} ({}).", it->startAddr, it->pathName);
+            fmt::print(stderr, "Error reading memory region {:#018x} ({}): {}.", 
+                    it->startAddr, it->pathName, e.what());
             continue;
         }
 
@@ -147,7 +148,8 @@ std::vector<MemAddress> MemoryFuncs::FindDataInMemory(pid_t pid, const std::vect
         }
         catch (const std::exception& e)
         {
-            fmt::print(stderr, "Error reading memory address {:#018x}.", it->address);
+            fmt::print(stderr, "Error reading memory address {:#018x}: {}.", 
+                    it->address, e.what());
             continue;
         }
 
