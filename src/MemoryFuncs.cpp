@@ -59,7 +59,7 @@ std::vector<uint8_t> MemoryFuncs::ReadProcessMemory(pid_t pid, unsigned long bas
     }
     else if (nread != length)
     {
-        fmt::print("WARNING: Partial read of {}/{} bytes.\n", nread, length);
+        fmt::print("WARNING: Partial read of {}/{} bytes at address {:#018x}.\n", nread, length, baseAddr);
     }
 
     std::vector<uint8_t> dataVec;
@@ -86,7 +86,7 @@ void MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long d
     }
     else if (nread != dataSize)
     {
-        fmt::print("WARNING: Partial write of {}/{} bytes.\n", nread, dataSize);
+        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataSize, baseAddr);
     }
 }
 

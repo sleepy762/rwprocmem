@@ -9,7 +9,11 @@
 std::vector<std::string> Utils::SplitString(const std::string& str, char delim)
 {
     std::vector<std::string> tokens;
-    
+    if (str.empty()) // Return an empty vector if the string is empty
+    {
+        return tokens;
+    }
+
     std::stringstream stream(str);
     std::string intermediate;
 

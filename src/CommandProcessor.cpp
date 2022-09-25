@@ -37,15 +37,16 @@ static const std::unordered_map<std::string , CmdFuncs> cmdMap =
 
 void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
 {
-    // Check if the input is empty
-    if (input.size() == 0)
+    // Split the input of the user into tokens
+    // tokens[0] is always the command, while the rest of the tokens are arguments
+    std::vector<std::string> tokens = Utils::SplitString(input, ' ');
+    
+    // Leave if the input is empty
+    if (tokens.empty())
     {
         return;
     }
 
-    // Split the input of the user into tokens
-    // tokens[0] is always the command, while the rest of the tokens are arguments
-    std::vector<std::string> tokens = Utils::SplitString(input, ' ');
     std::string command = tokens[0];
 
     if (command == "help")

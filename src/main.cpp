@@ -8,7 +8,7 @@
 
 int main()
 {
-    fmt::print("rwprocmem v1.1.0\n");
+    fmt::print("rwprocmem v1.1.1\n");
     fmt::print("Type 'help' to see a list of commands.\n");
     if (getuid() != 0)
     {
