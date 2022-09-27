@@ -26,7 +26,7 @@ void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
         {
             totalMem += memRegions[i].rangeLength;
 
-            fmt::print("[{:{}}] {:#018x}-{:#018x}\t{} bytes\t{}\t{}\n", 
+            fmt::print("[{:{}}] {:#018x}-{:#018x}\t{} bytes\t[{}]\t{}\n", 
                     i, indexWidth,
                     memRegions[i].startAddr, memRegions[i].endAddr,
                     memRegions[i].rangeLength,
