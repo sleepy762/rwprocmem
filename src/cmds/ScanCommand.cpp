@@ -83,7 +83,7 @@ static void WriteToSavedAddresses(Process& proc, const std::vector<std::string>&
 
         try
         {
-            ICommand<WriteCommand>::Main(proc, writeCmdArgs);
+            WriteCommand::Main(proc, writeCmdArgs);
             writeSuccess++;
         }
         catch (const std::runtime_error& e)
