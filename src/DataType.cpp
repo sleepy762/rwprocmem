@@ -23,7 +23,7 @@ DataType ParseDataType(const std::string& typeStr)
         }
         else
         {
-            throw std::runtime_error("Invalid signed type.");
+            throw std::invalid_argument("Invalid signed type.");
         }
     }
     else if (typeStr[0] == 'u')
@@ -46,7 +46,7 @@ DataType ParseDataType(const std::string& typeStr)
         }
         else
         {
-            throw std::runtime_error("Invalid unsigned type.");
+            throw std::invalid_argument("Invalid unsigned type.");
         }
     }
     else if (typeStr == "float")
@@ -63,7 +63,7 @@ DataType ParseDataType(const std::string& typeStr)
     }
     else
     {
-        throw std::runtime_error("Invalid type.");
+        throw std::invalid_argument("Invalid type.");
     }
 }
 

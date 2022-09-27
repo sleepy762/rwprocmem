@@ -1,9 +1,11 @@
 #include "cmds/ScanCommand.h"
 #include <cstdint>
+#include <fmt/core.h>
 #include <stdexcept>
 #include "Utils.h"
 #include "DataType.h"
 #include "ComparisonType.h"
+#include "cmds/WriteCommand.h"
 
 template <typename T>
 void CallScanner(Process& proc, size_t dataSize, const void* data, ComparisonType cmpType)
@@ -39,6 +41,61 @@ void ScanForData<std::string>(Process& proc, const std::vector<std::string>& arg
     CallScanner<std::string>(proc, dataSize, (void*)data.c_str(), cmpType);
 }
 
+static void ListSavedAddresses(const std::vector<MemAddress>& memAddrs)
+{
+    if (memAddrs.empty())
+    {
+        throw std::runtime_error("No memory addresses to list.");
+    }
+    else
+    {
+        Utils::PrintMemoryAddresses(memAddrs);
+    }
+}
+
+static void WriteToSavedAddresses(Process& proc, const std::vector<std::string>& args)
+{
+    // This is the vector of arguments which will be passed to the write command
+    // the first argument is always the command name
+    // the second argument is the address (it will be updated inside the loop)
+    // the third argument is the type of the data
+    // the fourth argument is the data itself
+    // Scan command syntax: scan write <type> <data>
+    if (args.size() < 4)
+    {
+        throw std::runtime_error("Missing arguments.");
+    }
+    std::vector<std::string> writeCmdArgs = { "write", "", args[2], args[3] };
+
+    auto memAddrs = proc.GetMemoryScanner().GetCurrScanVector();
+    int writeSuccess = 0; // Tracks how many addresses were written to
+
+    for (auto it = memAddrs.cbegin(); it != memAddrs.cend(); it++)
+    {
+        // Skip addresses to which data cannot be written
+        if (!it->memRegion.perms.writeFlag)
+        {
+            continue;
+        }
+
+        // Update the address in the arguments into the current address in hex
+        writeCmdArgs[1] = fmt::format("{:x}", it->address);       
+
+        try
+        {
+            ICommand<WriteCommand>::Main(proc, writeCmdArgs);
+            writeSuccess++;
+        }
+        catch (const std::runtime_error& e)
+        {
+            // Catching runtime errors only beacuse we want other exceptions to propogate out
+            // namely std::invalid_argument
+            fmt::print(stderr, "{:#018x}: {}\n", it->address, e.what());
+        }
+    }
+    fmt::print("Written to {}/{} memory addresses.\n", writeSuccess, memAddrs.size());
+}
+
 void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
     if (args.size() < 2)
@@ -57,18 +114,15 @@ void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else if (keywordStr == "list")
     {
-        auto memAddrs = proc.GetMemoryScanner().GetCurrScanVector();
-        if (memAddrs.empty())
-        {
-            throw std::runtime_error("No memory addresses to list.");
-        }
-        else
-        {
-            Utils::PrintMemoryAddresses(memAddrs);
-        }
+        ListSavedAddresses(proc.GetMemoryScanner().GetCurrScanVector());
+    }
+    else if (keywordStr == "write")
+    {
+        WriteToSavedAddresses(proc, args);
     }
     else
     {
+        // ParseComparisonType will throw if the keyword is incorrect or doesn't exist
         ComparisonType cmpType = ParseComparisonType(keywordStr);
 
         // Check if enough arguments were given
@@ -115,6 +169,7 @@ std::string ScanCommand::Help()
         "> -- Scans for addresses where the value is greater than the given <value>.\n"
         "< -- Scans for addresses where the value is less than the given <value>.\n"
         ">= -- Scans for addresses where the value is greater or equal to <value>\n"
-        "<= -- Scans for addresses where the value is less or equal to <value>.\n");
+        "<= -- Scans for addresses where the value is less or equal to <value>.\n"
+        "write -- Writes the <value> with the given <type> to all the saved memory addresses.\n");
 }
 

@@ -29,7 +29,7 @@ ComparisonType ParseComparisonType(const std::string& keywordStr)
     }
     else
     {
-        throw std::runtime_error("Invalid scan type.");
+        throw std::invalid_argument("Invalid scan type.");
     }
 }
 

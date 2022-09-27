@@ -42,7 +42,7 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     catch (const std::exception& e)
     {
-        throw std::runtime_error("Invalid address.");
+        throw std::invalid_argument("Invalid address.");
     }
 
     const pid_t pid = proc.GetCurrentPid();
