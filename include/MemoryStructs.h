@@ -11,7 +11,6 @@ struct MemRegionPerms
 
 struct MemRegion
 {
-    std::string addressRangeStr;
     unsigned long startAddr;
     unsigned long endAddr;
     unsigned long rangeLength;

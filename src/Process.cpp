@@ -38,8 +38,6 @@ void Process::SetProcessPid(pid_t pid)
 
 void Process::SetMemoryRangeBoundaries(MemRegion& reg, const std::string& addressRange) const
 {
-    reg.addressRangeStr = addressRange;
-
     // The delimiter in the address range is '-', as seen in any maps file
     std::vector<std::string> addressTokens = Utils::SplitString(addressRange, '-');
 
