@@ -27,10 +27,6 @@ void MemoryFreezer::AddAddress(MemAddress address, std::string& typeStr, std::st
     this->m_FrozenAddresses.push_back(frozenAddr);
 
     this->m_MemoryFreezerMutex.unlock();
-
-    // We may need to start/restart the thread if there were no addresses before
-    // and a new address was added now
-    this->StartThreadLoopIfNeeded();
 }
 
 void MemoryFreezer::RemoveAddress(size_t index)
@@ -83,6 +79,8 @@ void MemoryFreezer::EnableAddress(size_t index)
 
         this->m_MemoryFreezerMutex.unlock();
 
+        // We may need to start/restart the thread if there were no addresses before
+        // and a new address was added now
         this->StartThreadLoopIfNeeded();
     }
 }
