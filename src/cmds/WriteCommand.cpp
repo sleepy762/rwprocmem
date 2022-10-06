@@ -43,15 +43,7 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
 
     // The address is in index 1
-    unsigned long baseAddr;
-    try
-    {
-        baseAddr = std::stoul(args[1], nullptr, 16);
-    }
-    catch (const std::exception& e)
-    {
-        throw std::invalid_argument("Invalid address.");
-    }
+    unsigned long baseAddr = Utils::StrToNumber<unsigned long>(args[1], "address");
 
     const pid_t pid = proc.GetCurrentPid();
     const std::string& typeStr = args[2];
@@ -89,4 +81,3 @@ std::string WriteCommand::Help()
         "Data for float and double can be written as floating point numbers or hexadecimal numbers.\n"
         "Data for string can only be a string.\n");
 }
-

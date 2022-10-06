@@ -31,18 +31,9 @@ void PidCommand::Main(Process& proc, const std::vector<std::string>& args)
     }
     else // Check if it's a valid pid and use it
     {
-        pid_t newPid;
-
-        try
-        {
-            newPid = std::stoi(pidArg);
-        }
-        catch (const std::exception& e)
-        {
-            throw std::invalid_argument("Invalid pid.");
-        }
-        
+        pid_t newPid = Utils::StrToNumber<pid_t>(pidArg, "pid");
         std::string procCmd = Utils::GetProcessCommand(newPid);
+
         proc.SetProcessPid(newPid);
 
         fmt::print("Process {}: {}\n"

@@ -5,6 +5,7 @@
 #include <cctype>
 #include <fmt/core.h>
 #include "MemoryFuncs.h"
+#include "Utils.h"
 
 void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
@@ -13,27 +14,8 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
         throw std::runtime_error("Missing arguments.");
     }
 
-    unsigned long baseAddr;
-    unsigned long length;
-
-    try
-    {
-        // The address is expected to be passed in hexadecimal
-        baseAddr = std::stoul(args[1], nullptr, 16);
-    }
-    catch (const std::exception& e)
-    {
-        throw std::invalid_argument("Invalid address.");
-    }
-
-    try
-    {
-        length = std::stoul(args[2]);
-    }
-    catch (const std::exception& e)
-    {
-        throw std::invalid_argument("Invalid length.");
-    }
+    unsigned long baseAddr = Utils::StrToNumber<unsigned long>(args[1], "address");
+    unsigned long length = Utils::StrToNumber<unsigned long>(args[2], "length");
 
     const std::vector<uint8_t> dataVec = MemoryFuncs::ReadProcessMemory(proc.GetCurrentPid(), baseAddr, length);
     const size_t dataLen = dataVec.size();
@@ -79,7 +61,6 @@ std::string DumpCommand::Help()
     return std::string(
         "Usage: dump <address> <length>\n\n"
 
-        "Ouputs a hex dump with the given length of the data in the given address.\n"
-        "The memory address has to be in hexadecimal.\n");
+        "Ouputs a hex dump with the given length of the data in the given address.\n");
 }
 

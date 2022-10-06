@@ -201,8 +201,6 @@ void MemoryFreezer::StartThreadLoopIfNeeded()
     }
 }
 
-// TODO: Add mutex locks
-// TODO: Add exception handling
 void MemoryFreezer::ThreadLoop()
 {
     this->m_FrozenAddressIter = this->m_FrozenAddresses.begin();

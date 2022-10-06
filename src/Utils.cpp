@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <string>
 #include <fstream>
-#include <fmt/core.h>
 
 // Splits a string into a vector of strings
 std::vector<std::string> Utils::SplitString(const std::string& str, char delim)

@@ -40,7 +40,7 @@ static void ListFrozenMemoryAddresses(const std::list<FrozenMemAddress>& frozenA
     int index = 0;
     for (auto it = frozenAddrs.cbegin(); it != frozenAddrs.cend(); it++)
     {
-        fmt::print("[{:{}}] [{}] {:#018x} (in {}) [{}: {}]\n",
+        fmt::print("[{:{}}][{}] {:#018x} (in {}) [{}: {}]\n",
             index, indexWidth,
             it->enabled ? 'X' : ' ', // If the address is enabled, mark it with an X
             it->memAddress.address,
@@ -83,7 +83,7 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         else
         {
-            index = Utils::StrToNumber<size_t>(indexStr);
+            index = Utils::StrToNumber<size_t>(indexStr, "index");
         }
 
         if (keywordStr == "remove")
@@ -149,7 +149,7 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
 
         if (keywordStr == "add")
         {
-            unsigned long address = Utils::StrToNumber<unsigned long>(args[2]);
+            unsigned long address = Utils::StrToNumber<unsigned long>(args[2], "address");
             MemRegion memRegion = Utils::FindRegionOfAddress(proc.GetMemoryRegions(), address);
             MemAddress memAddress = { address, memRegion };
 
@@ -157,7 +157,7 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         else if (keywordStr == "modify")
         {
-            size_t index = Utils::StrToNumber<size_t>(args[2]);
+            size_t index = Utils::StrToNumber<size_t>(args[2], "index");
 
             memFreezer.ModifyAddress(index, typeStr, dataStr, dataVector);
         }
@@ -177,7 +177,7 @@ std::string FreezeCommand::Help()
 
         "Keywords with no args required:\n"
         "list -- Lists the frozen memory addresses in the following format:\n"
-            "\t[index] [enabled/disabled] [address] [pathname] [type] [data]\n\n"
+            "\t[index][enabled/disabled] [address] [pathname] [type] [data]\n\n"
 
         "Keywords that require 1 argument:\n"
         "remove <index/all> -- Removes the address in the given index, or removes all addresses.\n"

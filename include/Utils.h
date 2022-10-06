@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <charconv>
 #include "MemoryStructs.h"
+#include <fmt/core.h>
 
 namespace Utils
 {
@@ -30,7 +31,7 @@ namespace Utils
     inline std::from_chars_result from_chars_hex(const char* start, const char* end, T& value);
 
     template <typename T>
-    T StrToNumber(const std::string& dataString); 
+    T StrToNumber(const std::string& dataString, std::string varName = "data"); 
 }
 
 
@@ -46,8 +47,9 @@ inline std::from_chars_result Utils::from_chars_hex(const char* start, const cha
     return std::from_chars(start, end, value, std::chars_format::hex);
 }
 
+// Set varName to make the errors easier to understand
 template <typename T>
-T Utils::StrToNumber(const std::string& dataString)
+T Utils::StrToNumber(const std::string& dataString, std::string varName)
 {
     T dataValue = 0;
     std::from_chars_result res;
@@ -69,15 +71,20 @@ T Utils::StrToNumber(const std::string& dataString)
     // Error checking
     if (res.ec == std::errc::invalid_argument)
     {
-        throw std::invalid_argument("Invalid data.");
+        const std::string err = fmt::format("Invalid {}.", varName);
+        throw std::invalid_argument(err);
     }
     else if (res.ec == std::errc::result_out_of_range)
     {
-        throw std::runtime_error("Result of data conversion is out of range for the given type.");
+        const std::string err = fmt::format(
+            "Result of {} string conversion to a number is out of range for the given type.", varName);
+        throw std::runtime_error(err);
     }
     else if (res.ptr != dataStringEnd)
     {
-        throw std::runtime_error("Failed to fully convert the given data to a number.");
+        const std::string err = fmt::format(
+            "Failed to fully convert the given {} string to a number.", varName);
+        throw std::runtime_error(err);
     }
     return dataValue;
 }
