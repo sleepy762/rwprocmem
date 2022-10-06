@@ -211,6 +211,7 @@ void MemoryFreezer::ThreadLoop()
                             it->memAddress.address, nread, data.size());
                     this->m_MessageQueue.push(msg);
                     it->enabled = false;
+                    this->m_EnabledAddressesAmount -= 1;
                 }
             }
             catch (const std::exception& e)
@@ -219,6 +220,7 @@ void MemoryFreezer::ThreadLoop()
                         it->memAddress.address, e.what());
                 this->m_MessageQueue.push(msg);
                 it->enabled = false; // Disable the address which caused an exception
+                this->m_EnabledAddressesAmount -= 1;
             }
         }
         this->m_MemoryFreezerMutex.unlock();
