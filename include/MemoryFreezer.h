@@ -12,7 +12,7 @@ struct FrozenMemAddress
 {
     MemAddress memAddress;
     bool enabled; // A flag which tells the program whether the address should be frozen
-    std::string type; // Only used for printing to the user
+    std::string typeStr; // Only used for printing to the user
     std::string dataStr; // Also only used for printing to the user (removes the need for a template)
     std::vector<uint8_t> data; // The data which will be continually written to the address
 };
@@ -23,7 +23,7 @@ public:
     MemoryFreezer();
     ~MemoryFreezer();
 
-    void AddAddress(MemAddress address, std::string& typeStr, std::string& dataStr,
+    void AddAddress(MemAddress address, const std::string& typeStr, const std::string& dataStr,
             std::vector<uint8_t>& data);
     void RemoveAddress(size_t index);
     void RemoveAllAddresses();

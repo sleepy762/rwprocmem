@@ -30,6 +30,7 @@ void Process::SetProcessPid(pid_t pid)
     {
         this->m_pid = pid;
         this->m_MemoryScanner.SetPid(pid);
+        this->m_MemoryFreezer.SetPid(pid);
     }
     else
     {
@@ -147,6 +148,11 @@ const std::vector<MemRegion> Process::GetMemoryRegions() const
 MemoryScanner& Process::GetMemoryScanner()
 {
     return this->m_MemoryScanner;
+}
+
+MemoryFreezer& Process::GetMemoryFreezer()
+{
+    return this->m_MemoryFreezer;
 }
 
 void Process::PrintMessageQueues()

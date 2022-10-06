@@ -13,6 +13,7 @@
 #include "cmds/WriteCommand.h"
 #include "cmds/FindCommand.h"
 #include "cmds/ScanCommand.h"
+#include "cmds/FreezeCommand.h"
 
 using CommandMainFunc = void (*)(Process&, const std::vector<std::string>&);
 using CommandHelpFunc = std::string (*)();
@@ -26,12 +27,13 @@ struct CmdFuncs
 // All the commands are stored in this map
 static const std::unordered_map<std::string , CmdFuncs> cmdMap =
 {
-    { "pid",  { &ICommand<PidCommand>::Main,  &ICommand<PidCommand>::Help } },
-    { "map",  { &ICommand<MapCommand>::Main,  &ICommand<MapCommand>::Help } },
-    { "dump", { &ICommand<DumpCommand>::Main, &ICommand<DumpCommand>::Help } },
-    { "write", { &ICommand<WriteCommand>::Main, &ICommand<WriteCommand>::Help } },
-    { "find", { &ICommand<FindCommand>::Main, &ICommand<FindCommand>::Help } },
-    { "scan", { &ICommand<ScanCommand>::Main, &ICommand<ScanCommand>::Help } }
+    { "pid",    { &ICommand<PidCommand>::Main,    &ICommand<PidCommand>::Help } },
+    { "map",    { &ICommand<MapCommand>::Main,    &ICommand<MapCommand>::Help } },
+    { "dump",   { &ICommand<DumpCommand>::Main,   &ICommand<DumpCommand>::Help } },
+    { "write",  { &ICommand<WriteCommand>::Main,  &ICommand<WriteCommand>::Help } },
+    { "find",   { &ICommand<FindCommand>::Main,   &ICommand<FindCommand>::Help } },
+    { "scan",   { &ICommand<ScanCommand>::Main,   &ICommand<ScanCommand>::Help } },
+    { "freeze", { &ICommand<FreezeCommand>::Main, &ICommand<FreezeCommand>::Help } }
 };
 
 

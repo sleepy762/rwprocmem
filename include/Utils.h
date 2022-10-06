@@ -18,6 +18,8 @@ namespace Utils
 
     void PrintMemoryAddresses(const std::vector<MemAddress>& memAddrs);
 
+    MemRegion FindRegionOfAddress(const std::vector<MemRegion>& memRegions, unsigned long address);
+
     // These function templates are very thin wrappers around std::from_chars
     // std::from_chars is actually unable to detect whether a number is in hex
     // so we have to explicitly call the function with a base 16/hex argument

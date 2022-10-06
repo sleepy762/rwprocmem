@@ -18,6 +18,7 @@ public:
     pid_t GetCurrentPid() const;
     const std::vector<MemRegion> GetMemoryRegions() const;
     MemoryScanner& GetMemoryScanner();
+    MemoryFreezer& GetMemoryFreezer();
 
     void PrintMessageQueues();
 

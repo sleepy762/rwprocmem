@@ -16,7 +16,7 @@ MemoryFreezer::MemoryFreezer()
 
 MemoryFreezer::~MemoryFreezer() {}
 
-void MemoryFreezer::AddAddress(MemAddress address, std::string& typeStr, std::string& dataStr, 
+void MemoryFreezer::AddAddress(MemAddress address, const std::string& typeStr, const std::string& dataStr, 
         std::vector<uint8_t>& data)
 {
     // Add the address but have it disabled
@@ -31,7 +31,7 @@ void MemoryFreezer::AddAddress(MemAddress address, std::string& typeStr, std::st
 
 void MemoryFreezer::RemoveAddress(size_t index)
 {
-    if (index > this->m_FrozenAddresses.size())
+    if (index >= this->m_FrozenAddresses.size())
     {
         throw std::runtime_error("Index out of bounds.");
     }
@@ -63,7 +63,7 @@ void MemoryFreezer::RemoveAllAddresses()
 
 void MemoryFreezer::EnableAddress(size_t index)
 {
-    if (index > this->m_FrozenAddresses.size())
+    if (index >= this->m_FrozenAddresses.size())
     {
         throw std::runtime_error("Index out of bounds.");
     }
@@ -87,7 +87,7 @@ void MemoryFreezer::EnableAddress(size_t index)
 
 void MemoryFreezer::DisableAddress(size_t index)
 {
-    if (index > this->m_FrozenAddresses.size())
+    if (index >= this->m_FrozenAddresses.size())
     {
         throw std::runtime_error("Index out of bounds.");
     }
