@@ -67,6 +67,11 @@ void DumpCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         fmt::print("|{}|\n", printableData);
     }
+    // Notify the user if the dump is partial
+    if (dataLen != length)
+    {
+        fmt::print("WARNING: Partial read of {}/{} bytes at address {:#018x}.\n", dataLen, length, baseAddr);
+    }
 }
 
 std::string DumpCommand::Help()

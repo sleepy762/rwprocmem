@@ -1,9 +1,11 @@
 #include "MemoryFreezer.h"
 #include <cstdint>
+#include <exception>
 #include <stdexcept>
 #include <thread>
 #include <vector>
 #include "MemoryFuncs.h"
+#include <fmt/core.h>
 
 MemoryFreezer::MemoryFreezer()
 {
@@ -138,7 +140,7 @@ void MemoryFreezer::StartThreadLoopIfNeeded()
 // TODO: Add exception handling
 void MemoryFreezer::ThreadLoop()
 {
-    auto it = this->m_FrozenAddresses.cbegin();
+    auto it = this->m_FrozenAddresses.begin();
     while (true)
     {
         // Stopping condition
@@ -148,18 +150,37 @@ void MemoryFreezer::ThreadLoop()
         }
 
         // Restart the iterator if it reached the end
-        if (it == this->m_FrozenAddresses.cend())
+        if (it == this->m_FrozenAddresses.end())
         {
-            it = this->m_FrozenAddresses.cbegin();
+            it = this->m_FrozenAddresses.begin();
         }
 
         // Only freeze enabled addresses
         if (it->enabled)
         {
-            std::vector<uint8_t> data = it->data; 
-            MemoryFuncs::WriteToProcessMemory(this->m_pid, it->memAddress.address, data.size(), (void*)&data[0]);
+            const std::vector<uint8_t>& data = it->data; 
+            const long dataSize = data.size();
+            try
+            {
+                ssize_t nread = MemoryFuncs::WriteToProcessMemory(this->m_pid, it->memAddress.address, dataSize, (void*)&data[0]);
+                // Check for partial write
+                if (nread != dataSize)
+                {
+                    const std::string msg = fmt::format(
+                            "WARNING: Disabling address {:#018x} due to a partial write of {}/{}.",
+                            it->memAddress.address, nread, data.size());
+                    this->m_MessageQueue.push(msg);
+                    it->enabled = false;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                const std::string msg = fmt::format("Error writing to memory location {:#018x}: {}", 
+                        it->memAddress.address, e.what());
+                this->m_MessageQueue.push(msg);
+                it->enabled = false; // Disable the address which caused an exception
+            }
         }
-        
         // Move forward
         std::advance(it, 1);
     }

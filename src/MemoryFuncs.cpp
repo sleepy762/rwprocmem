@@ -57,19 +57,16 @@ std::vector<uint8_t> MemoryFuncs::ReadProcessMemory(pid_t pid, unsigned long bas
     {
         throw std::runtime_error(GetErrorMessage(errno));
     }
-    else if (nread != length)
-    {
-        fmt::print("WARNING: Partial read of {}/{} bytes at address {:#018x}.\n", nread, length, baseAddr);
-    }
 
     std::vector<uint8_t> dataVec;
     // Copy the data given from process_vm_readv into the byte vector
-    dataVec.insert(dataVec.end(), &buffer.get()[0], &buffer.get()[nread]);
+    uint8_t* bufferPtr = buffer.get();
+    dataVec.insert(dataVec.end(), &bufferPtr[0], &bufferPtr[nread]);
 
     return dataVec;
 }
 
-void MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data)
+ssize_t MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data)
 {
     iovec local[1];
     local[0].iov_base = data;
@@ -84,10 +81,7 @@ void MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long d
     {
         throw std::runtime_error(GetErrorMessage(errno));
     }
-    else if (nread != dataSize)
-    {
-        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataSize, baseAddr);
-    }
+    return nread;
 }
 
 template <>

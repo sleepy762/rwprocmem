@@ -10,10 +10,14 @@ template <typename T>
 void WriteData(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
 {
     // The data is in index 3, according to the syntax
-    constexpr unsigned long dataTypeSize = sizeof(T);
+    constexpr long dataTypeSize = sizeof(T);
     T dataValue = Utils::StrToNumber<T>(args[3]);
 
-    MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
+    ssize_t nread = MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
+    if (nread != dataTypeSize)
+    {
+        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataTypeSize, baseAddr);
+    }
 }
 
 // Accepts string
@@ -24,7 +28,11 @@ void WriteData<std::string>(pid_t pid, unsigned long baseAddr, const std::vector
     std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
     const long dataSize = fullData.size();
 
-    MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
+    ssize_t nread = MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
+    if (nread != dataSize)
+    {
+        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataSize, baseAddr);
+    }
 }
 
 void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)

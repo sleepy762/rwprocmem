@@ -6,6 +6,7 @@
 #include <list>
 #include "MemoryStructs.h"
 #include <mutex>
+#include <queue>
 
 struct FrozenMemAddress
 {
@@ -47,5 +48,6 @@ private:
     pid_t m_pid;
     std::list<FrozenMemAddress> m_FrozenAddresses;
     std::mutex m_MemoryFreezerMutex;
+    std::queue<std::string> m_MessageQueue; // A queue for messages from the memory freezer thread
 };
 

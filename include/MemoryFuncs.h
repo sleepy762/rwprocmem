@@ -13,7 +13,7 @@ namespace MemoryFuncs
 {
     // Wrappers for process_vm_readv/process_vm_writev respectively
     std::vector<uint8_t> ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length);
-    void WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data);
+    ssize_t WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data);
     
     // Compares two values based on the given comparison type
     template <typename T>
@@ -100,6 +100,13 @@ std::vector<MemAddress> MemoryFuncs::FindDataInMemory(pid_t pid, const std::vect
             continue;
         }
 
+        // Check if there was a partial read
+        if (regMemory.size() != it->rangeLength)
+        {
+            fmt::print("WARNING: Partial read of {}/{} bytes at memory address {:#018x}.\n",
+                    regMemory.size(), it->rangeLength, it->startAddr);
+        }
+
         // The vector is a contiguous array in memory so we can do this
         const unsigned char* dataPtr = &regMemory[0];
         for (unsigned long i = 0; i < regMemory.size(); i++)
@@ -151,6 +158,13 @@ std::vector<MemAddress> MemoryFuncs::FindDataInMemory(pid_t pid, const std::vect
             fmt::print(stderr, "WARNING: Error reading memory address {:#018x}: {}\n", 
                     it->address, e.what());
             continue;
+        }
+
+        // Check if there was a partial read
+        if (addrMemory.size() != dataSize)
+        {
+            fmt::print("WARNING: Partial read of {}/{} at memory address {:#018x}.\n",
+                    addrMemory.size(), dataSize, it->address);
         }
 
         // The target data should be in the rhs
