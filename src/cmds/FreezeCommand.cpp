@@ -182,11 +182,11 @@ std::string FreezeCommand::Help()
         "Keywords that require 1 argument:\n"
         "remove <index/all> -- Removes the address in the given index, or removes all addresses.\n"
         "enable <index/all> -- Enables the program to freeze the address in the given index, or all addresses.\n"
-        "disable <index/all> -- Disables the program from freezing the address in the given index, or all addresses.\n"
-            
+        "disable <index/all> -- Disables the program from freezing the address in the given index, or all addresses.\n\n"
+
         "Keywords that require 3 arguments:\n"
         "add <address> <type> <data> -- Adds the address to the freezing list which will write <data> to <address> continuously."
-            " When addresses are added, they are disabled and have to be enabled manually.\n"
+            "\n\tWhen addresses are added, they are disabled and have to be enabled manually.\n"
         "modify <index> <type> <data> -- Modifies an existing address by changing the <type> and <data>.\n");
 }
 
