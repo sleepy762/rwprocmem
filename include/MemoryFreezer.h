@@ -23,7 +23,7 @@ public:
     MemoryFreezer();
     ~MemoryFreezer();
 
-    void AddAddress(MemAddress address, const std::string& typeStr, const std::string& dataStr,
+    void AddAddress(MemAddress memAddress, const std::string& typeStr, const std::string& dataStr,
             std::vector<uint8_t>& data);
     void RemoveAddress(size_t index);
     void RemoveAllAddresses();
@@ -32,6 +32,9 @@ public:
     void DisableAddress(size_t index);
     void EnableAllAddresses();
     void DisableAllAddresses();
+
+    void ModifyAddress(size_t index, const std::string& typeStr, const std::string& dataStr,
+            std::vector<uint8_t>& data);
 
     const std::list<FrozenMemAddress>& GetFrozenAddresses() const;
     int GetEnabledAddressesAmount() const;

@@ -16,11 +16,20 @@ MemoryFreezer::MemoryFreezer()
 
 MemoryFreezer::~MemoryFreezer() {}
 
-void MemoryFreezer::AddAddress(MemAddress address, const std::string& typeStr, const std::string& dataStr, 
+void MemoryFreezer::AddAddress(MemAddress memAddress, const std::string& typeStr, const std::string& dataStr, 
         std::vector<uint8_t>& data)
 {
+    // Check if the address already exists
+    for (auto it = this->m_FrozenAddresses.cbegin(); it != this->m_FrozenAddresses.cend(); it++)
+    {
+        if (it->memAddress.address == memAddress.address)
+        {
+            throw std::runtime_error("The address is already in the list.");
+        }
+    }
+
     // Add the address but have it disabled
-    FrozenMemAddress frozenAddr = { address, false, typeStr, dataStr, data };
+    FrozenMemAddress frozenAddr = { memAddress, false, typeStr, dataStr, data };
 
     this->m_MemoryFreezerMutex.lock();
 
@@ -134,6 +143,28 @@ void MemoryFreezer::DisableAllAddresses()
     this->m_EnabledAddressesAmount = 0;
 
     this->m_MemoryFreezerMutex.unlock();
+}
+
+void MemoryFreezer::ModifyAddress(size_t index, const std::string &typeStr, const std::string &dataStr,
+        std::vector<uint8_t> &data)
+{
+    if (index >= this->m_FrozenAddresses.size())
+    {
+        throw std::runtime_error("Index out of bounds.");
+    }
+    else
+    {
+        auto iter = this->m_FrozenAddresses.begin();
+        std::advance(iter, index);
+        
+        this->m_MemoryFreezerMutex.lock();
+
+        iter->typeStr = typeStr;
+        iter->dataStr = dataStr;
+        iter->data = data;
+
+        this->m_MemoryFreezerMutex.unlock();
+    }
 }
 
 const std::list<FrozenMemAddress>& MemoryFreezer::GetFrozenAddresses() const

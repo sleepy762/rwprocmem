@@ -32,7 +32,7 @@ static void ListFrozenMemoryAddresses(const std::list<FrozenMemAddress>& frozenA
 {
     if (frozenAddrs.size() == 0)
     {
-        fmt::print("No memory addresses to list.");
+        fmt::print("No memory addresses to list.\n");
         return;
     }
 
@@ -121,15 +121,13 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
     }
     // This keyword requires 3 args
-    else if (keywordStr == "add")
+    else if (keywordStr == "add" || keywordStr == "modify")
     {
         if (args.size() < 5)
         {
             throw std::runtime_error("Missing arguments.");
         }
 
-        unsigned long address = Utils::StrToNumber<unsigned long>(args[2]);
-        MemRegion memRegion = Utils::FindRegionOfAddress(proc.GetMemoryRegions(), address);
         const std::string& typeStr = args[3];
         const std::string& dataStr = args[4];
         std::vector<uint8_t> dataVector;
@@ -148,9 +146,21 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
             case DataType::f64:    dataVector = DataToByteVector<double>(dataStr);      break;
             case DataType::string: dataVector = DataToByteVector<std::string>(dataStr); break;
         }
-        MemAddress memAddress = { address, memRegion };
 
-        memFreezer.AddAddress(memAddress, typeStr, dataStr, dataVector);
+        if (keywordStr == "add")
+        {
+            unsigned long address = Utils::StrToNumber<unsigned long>(args[2]);
+            MemRegion memRegion = Utils::FindRegionOfAddress(proc.GetMemoryRegions(), address);
+            MemAddress memAddress = { address, memRegion };
+
+            memFreezer.AddAddress(memAddress, typeStr, dataStr, dataVector);
+        }
+        else if (keywordStr == "modify")
+        {
+            size_t index = Utils::StrToNumber<size_t>(args[2]);
+
+            memFreezer.ModifyAddress(index, typeStr, dataStr, dataVector);
+        }
     }
     else
     {
@@ -176,6 +186,7 @@ std::string FreezeCommand::Help()
             
         "Keywords that require 3 arguments:\n"
         "add <address> <type> <data> -- Adds the address to the freezing list which will write <data> to <address> continuously."
-            " When addresses are added, they are disabled and have to be enabled manually.\n");
+            " When addresses are added, they are disabled and have to be enabled manually.\n"
+        "modify <index> <type> <data> -- Modifies an existing address by changing the <type> and <data>.\n");
 }
 
