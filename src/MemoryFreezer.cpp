@@ -19,12 +19,12 @@ MemoryFreezer::~MemoryFreezer() {}
 void MemoryFreezer::AddAddress(MemAddress address, std::string& typeStr, std::string& dataStr, 
         std::vector<uint8_t>& data)
 {
-    FrozenMemAddress frozenAddr = { address, true, typeStr, dataStr, data };
+    // Add the address but have it disabled
+    FrozenMemAddress frozenAddr = { address, false, typeStr, dataStr, data };
 
     this->m_MemoryFreezerMutex.lock();
 
     this->m_FrozenAddresses.push_back(frozenAddr);
-    this->m_EnabledAddressesAmount += 1;
 
     this->m_MemoryFreezerMutex.unlock();
 
