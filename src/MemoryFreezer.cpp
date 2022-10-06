@@ -19,6 +19,12 @@ MemoryFreezer::~MemoryFreezer() {}
 void MemoryFreezer::AddAddress(MemAddress memAddress, const std::string& typeStr, const std::string& dataStr, 
         std::vector<uint8_t>& data)
 {
+    // Prevent adding read-only addresses
+    if (!memAddress.memRegion.perms.writeFlag)
+    {
+        throw std::runtime_error("Cannot add read-only address.");
+    }
+
     // Check if the address already exists
     for (auto it = this->m_FrozenAddresses.cbegin(); it != this->m_FrozenAddresses.cend(); it++)
     {
