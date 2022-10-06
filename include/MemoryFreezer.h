@@ -50,7 +50,9 @@ private:
 
     pid_t m_pid;
     std::list<FrozenMemAddress> m_FrozenAddresses;
+    std::list<FrozenMemAddress>::iterator m_FrozenAddressIter;
     std::mutex m_MemoryFreezerMutex;
+
     std::queue<std::string> m_MessageQueue; // A queue for messages from the memory freezer thread
 };
 

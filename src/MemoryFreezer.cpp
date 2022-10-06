@@ -20,8 +20,13 @@ void MemoryFreezer::AddAddress(MemAddress address, std::string& typeStr, std::st
         std::vector<uint8_t>& data)
 {
     FrozenMemAddress frozenAddr = { address, true, typeStr, dataStr, data };
+
+    this->m_MemoryFreezerMutex.lock();
+
     this->m_FrozenAddresses.push_back(frozenAddr);
     this->m_EnabledAddressesAmount += 1;
+
+    this->m_MemoryFreezerMutex.unlock();
 
     // We may need to start/restart the thread if there were no addresses before
     // and a new address was added now
@@ -39,15 +44,25 @@ void MemoryFreezer::RemoveAddress(size_t index)
         auto iter = this->m_FrozenAddresses.cbegin();
         std::advance(iter, index);
 
+        this->m_MemoryFreezerMutex.lock();
+
         this->m_FrozenAddresses.erase(iter);
         this->m_EnabledAddressesAmount -= 1;
+        // Prevents a possible crash where the thread might attempt to use a deleted iterator
+        this->m_FrozenAddressIter = this->m_FrozenAddresses.begin();
+
+        this->m_MemoryFreezerMutex.unlock();
     }
 }
 
 void MemoryFreezer::RemoveAllAddresses()
 {
+    this->m_MemoryFreezerMutex.lock();
+
     this->m_FrozenAddresses.clear();
     this->m_EnabledAddressesAmount = 0;
+
+    this->m_MemoryFreezerMutex.unlock();
 }
 
 void MemoryFreezer::EnableAddress(size_t index)
@@ -61,8 +76,12 @@ void MemoryFreezer::EnableAddress(size_t index)
         auto iter = this->m_FrozenAddresses.begin();
         std::advance(iter, index);
 
+        this->m_MemoryFreezerMutex.lock();
+
         iter->enabled = true;
         this->m_EnabledAddressesAmount += 1;
+
+        this->m_MemoryFreezerMutex.unlock();
 
         this->StartThreadLoopIfNeeded();
     }
@@ -79,8 +98,12 @@ void MemoryFreezer::DisableAddress(size_t index)
         auto iter = this->m_FrozenAddresses.begin();
         std::advance(iter, index);
 
+        this->m_MemoryFreezerMutex.lock();
+
         iter->enabled = false;
         this->m_EnabledAddressesAmount -= 1;
+
+        this->m_MemoryFreezerMutex.unlock();
     }
 }
 
@@ -88,23 +111,31 @@ void MemoryFreezer::EnableAllAddresses()
 {
     for (auto it = this->m_FrozenAddresses.begin(); it != this->m_FrozenAddresses.end(); it++)
     {
+        this->m_MemoryFreezerMutex.lock();
+
         // Only count (and enable) addresses which are currently disabled
         if (!it->enabled)
         {
             it->enabled = true;
             this->m_EnabledAddressesAmount += 1;
         }
+
+        this->m_MemoryFreezerMutex.unlock();
     }
     this->StartThreadLoopIfNeeded();
 }
 
 void MemoryFreezer::DisableAllAddresses()
 {
+    this->m_MemoryFreezerMutex.lock();
+
     for (auto it = this->m_FrozenAddresses.begin(); it != this->m_FrozenAddresses.end(); it++)
     {
         it->enabled = false;
     }
     this->m_EnabledAddressesAmount = 0;
+
+    this->m_MemoryFreezerMutex.unlock();
 }
 
 const std::list<FrozenMemAddress>& MemoryFreezer::GetFrozenAddresses() const
@@ -120,8 +151,13 @@ int MemoryFreezer::GetEnabledAddressesAmount() const
 void MemoryFreezer::SetPid(pid_t pid)
 {
     this->m_pid = pid;
+
+    this->m_MemoryFreezerMutex.lock();
+
     this->m_FrozenAddresses.clear();
     this->m_EnabledAddressesAmount = 0;
+
+    this->m_MemoryFreezerMutex.unlock();
 }
 
 void MemoryFreezer::StartThreadLoopIfNeeded()
@@ -140,15 +176,19 @@ void MemoryFreezer::StartThreadLoopIfNeeded()
 // TODO: Add exception handling
 void MemoryFreezer::ThreadLoop()
 {
-    auto it = this->m_FrozenAddresses.begin();
+    this->m_FrozenAddressIter = this->m_FrozenAddresses.begin();
     while (true)
     {
+        this->m_MemoryFreezerMutex.lock();
+
         // Stopping condition
         if (this->m_EnabledAddressesAmount <= 0)
         {
+            this->m_MemoryFreezerMutex.unlock();
             break;
         }
 
+        auto& it = this->m_FrozenAddressIter;
         // Restart the iterator if it reached the end
         if (it == this->m_FrozenAddresses.end())
         {
@@ -181,6 +221,7 @@ void MemoryFreezer::ThreadLoop()
                 it->enabled = false; // Disable the address which caused an exception
             }
         }
+        this->m_MemoryFreezerMutex.unlock();
         // Move forward
         std::advance(it, 1);
     }
