@@ -38,6 +38,9 @@ public:
 
     void SetPid(pid_t pid);
 
+    std::string MessageQueuePop();
+    size_t GetMessageQueueSize() const;
+
 private:
     void StartThreadLoopIfNeeded();
     void ThreadLoop();

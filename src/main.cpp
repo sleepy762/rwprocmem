@@ -8,7 +8,7 @@
 
 int main()
 {
-    fmt::print("rwprocmem v1.1.3\n");
+    fmt::print("rwprocmem v1.2.0\n");
     fmt::print("Type 'help' to see a list of commands.\n");
     if (getuid() != 0)
     {
@@ -20,6 +20,8 @@ int main()
     Process proc;
     while (input != "exit")
     {
+        proc.PrintMessageQueues();
+
         fmt::print("> ");
         if (!std::getline(std::cin, input))
         {

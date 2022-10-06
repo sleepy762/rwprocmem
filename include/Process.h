@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include "MemoryStructs.h"
 #include "MemoryScanner.h"
+#include "MemoryFreezer.h"
 
 class Process
 {
@@ -18,9 +19,12 @@ public:
     const std::vector<MemRegion> GetMemoryRegions() const;
     MemoryScanner& GetMemoryScanner();
 
+    void PrintMessageQueues();
+
 private:
     pid_t m_pid;
     MemoryScanner m_MemoryScanner;
+    MemoryFreezer m_MemoryFreezer;
 
     void UpdateMemoryRegions();
 

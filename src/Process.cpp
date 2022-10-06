@@ -7,7 +7,8 @@
 #include <fstream>
 #include <fmt/core.h>
 
-Process::Process()
+Process::Process() 
+    : m_MemoryFreezer(MemoryFreezer())
 {
     this->m_pid = 0;
     this->m_MemoryScanner = MemoryScanner();
@@ -146,5 +147,20 @@ const std::vector<MemRegion> Process::GetMemoryRegions() const
 MemoryScanner& Process::GetMemoryScanner()
 {
     return this->m_MemoryScanner;
+}
+
+void Process::PrintMessageQueues()
+{
+    size_t memFreezerQueueSize = this->m_MemoryFreezer.GetMessageQueueSize();
+    if (memFreezerQueueSize == 0)
+    {
+        return;
+    }
+
+    fmt::print("\nMessages from MemoryFreezer:\n");
+    while (memFreezerQueueSize--)
+    {
+        fmt::print("{}\n", this->m_MemoryFreezer.MessageQueuePop());
+    }
 }
 

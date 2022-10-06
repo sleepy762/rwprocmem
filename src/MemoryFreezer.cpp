@@ -187,3 +187,15 @@ void MemoryFreezer::ThreadLoop()
     this->m_ThreadRunning = false;
 }
 
+size_t MemoryFreezer::GetMessageQueueSize() const
+{
+    return this->m_MessageQueue.size();
+}
+
+std::string MemoryFreezer::MessageQueuePop()
+{
+    std::string msg = this->m_MessageQueue.front();
+    this->m_MessageQueue.pop();
+    return msg;
+}
+
