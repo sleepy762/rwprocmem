@@ -4,11 +4,7 @@
 
 void MapCommand::Main(Process& proc, const std::vector<std::string>& args)
 {
-    (void)args;
-    if (proc.GetCurrentPid() == 0)
-    {
-        throw std::runtime_error("A pid has not been set. (see command 'pid')");
-    }
+    (void)args; // This command doesn't use any args, this silences a warning
 
     const std::vector<MemRegion> memRegions = proc.GetMemoryRegions();
     if (memRegions.empty())

@@ -2,10 +2,12 @@
 #include <cstdint>
 #include <fmt/core.h>
 #include <stdexcept>
+#include <string>
 #include "Utils.h"
 #include "DataType.h"
 #include "ComparisonType.h"
 #include "cmds/WriteCommand.h"
+#include "cmds/FreezeCommand.h"
 
 template <typename T>
 size_t CallScanner(Process& proc, size_t dataSize, const void* data, ComparisonType cmpType)
@@ -75,22 +77,67 @@ static void WriteToSavedAddresses(Process& proc, const std::vector<std::string>&
             continue;
         }
 
-        // Update the address in the arguments into the current address in hex
-        writeCmdArgs[1] = fmt::format("{:x}", it->address);       
+        writeCmdArgs[1] = std::to_string(it->address);       
 
         try
         {
             WriteCommand::Main(proc, writeCmdArgs);
             writeSuccess++;
         }
-        catch (const std::runtime_error& e)
+        catch (const std::exception& e)
         {
-            // Catching runtime errors only beacuse we want other exceptions to propogate out
-            // namely std::invalid_argument
-            fmt::print(stderr, "{:#018x}: {}\n", it->address, e.what());
+            fmt::print(stderr, "Error writing to address {:#018x}: {}\n", it->address, e.what());
         }
     }
     fmt::print("Written to {}/{} memory addresses.\n", writeSuccess, memAddrs.size());
+}
+
+static void AddScanListToFreezeList(Process& proc, const std::vector<std::string>& args)
+{
+    // The syntax of the freeze add command is:
+    // freeze add <address> <type> <data> [note]
+    // The synax of the scan freeze command is:
+    // scan freeze <type> <data> [note]
+    if (args.size() < 4)
+    {
+        throw std::runtime_error("Missing arguments.");
+    }
+
+    std::string note = "";
+    try
+    {
+        note = args.at(4);
+    }
+    // No error handling since the argument is optional
+    catch (const std::out_of_range&) {}
+
+    // The third element is the address which will be modified inside the loop
+    std::vector<std::string> freezeCmdArgs = { "freeze", "add", "", args[2], args[3], note }; 
+
+    auto memAddrs = proc.GetMemoryScanner().GetCurrScanVector();
+    int success = 0;
+
+    for (auto it = memAddrs.cbegin(); it != memAddrs.cend(); it++)
+    {
+        // Skip addresses without the write flag enabled
+        if (!it->memRegion.perms.writeFlag)
+        {
+            continue;
+        }
+
+        freezeCmdArgs[2] = std::to_string(it->address);
+
+        try
+        {
+            FreezeCommand::Main(proc, freezeCmdArgs);
+            success++;
+        }
+        catch (const std::exception& e)
+        {
+            fmt::print(stderr, "Error adding address {:#018x}: {}\n", it->address, e.what());
+        }
+    }
+    fmt::print("Added {}/{} addresses to the freeze list.\n", success, memAddrs.size());
 }
 
 void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -116,6 +163,10 @@ void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
     else if (keywordStr == "write")
     {
         WriteToSavedAddresses(proc, args);
+    }
+    else if (keywordStr == "freeze")
+    {
+        AddScanListToFreezeList(proc, args);
     }
     else
     {
@@ -170,6 +221,8 @@ std::string ScanCommand::Help()
         "< -- Scans for addresses where the value is less than the given <value>.\n"
         ">= -- Scans for addresses where the value is greater or equal to <value>\n"
         "<= -- Scans for addresses where the value is less or equal to <value>.\n"
-        "write -- Writes the <value> with the given <type> to all the saved memory addresses.\n");
+        "write -- Writes the <value> with the given <type> to all the saved memory addresses.\n"
+        "freeze -- Adds all the writable addressses in the scan list to the freeze list.\n"
+            "\tAn optional note can be added as well as another argument after <value>.\n");
 }
 

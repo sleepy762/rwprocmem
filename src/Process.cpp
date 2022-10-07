@@ -84,6 +84,11 @@ pid_t Process::GetCurrentPid() const
 
 const std::vector<MemRegion> Process::GetMemoryRegions() const
 {
+    if (this->m_pid == 0)
+    {
+        throw std::runtime_error("A pid has not been set. (see command `pid`)");
+    }
+
     // Make sure we are returning the most up to date memory region structs
     std::string processMapPath = fmt::format("/proc/{}/maps", this->m_pid);
     std::ifstream processMap(processMapPath);
