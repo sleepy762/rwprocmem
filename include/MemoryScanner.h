@@ -16,11 +16,11 @@ public:
     void Undo();
 
     template <typename T>
-    void NewScan(const std::vector<MemRegion>& memRegions, size_t dataSize, const void* data,
+    size_t NewScan(const std::vector<MemRegion>& memRegions, size_t dataSize, const void* data,
             ComparisonType cmpType);
     
     template <typename T>
-    void NextScan(size_t dataSize, const void* data, ComparisonType cmpType);
+    size_t NextScan(size_t dataSize, const void* data, ComparisonType cmpType);
 
     void SetPid(pid_t pid);
 
@@ -37,8 +37,9 @@ private:
 };
 
 
+// Returns the amount of addresses where the data was found
 template <typename T>
-void MemoryScanner::NewScan(const std::vector<MemRegion>& memRegions, size_t dataSize, const void* data,
+size_t MemoryScanner::NewScan(const std::vector<MemRegion>& memRegions, size_t dataSize, const void* data,
         ComparisonType cmpType)
 {
     // This should never happen
@@ -51,10 +52,13 @@ void MemoryScanner::NewScan(const std::vector<MemRegion>& memRegions, size_t dat
             data, cmpType);
     this->m_UndoFlag = false; // Reset the undo flag
     this->m_ScanStartedFlag = true;
+
+    return this->m_CurrScanVector.size();
 }
 
+// Also returns the amount of addresses where the data was found
 template <typename T>
-void MemoryScanner::NextScan(size_t dataSize, const void* data, ComparisonType cmpType)
+size_t MemoryScanner::NextScan(size_t dataSize, const void* data, ComparisonType cmpType)
 {
     auto temporary = this->m_CurrScanVector;
     
@@ -64,5 +68,7 @@ void MemoryScanner::NextScan(size_t dataSize, const void* data, ComparisonType c
     // Replace the previous scan vector only if the scan succeeded
     this->m_PrevScanVector = temporary;
     this->m_UndoFlag = false; // Reset the undo flag
+
+    return this->m_CurrScanVector.size();
 }
 
