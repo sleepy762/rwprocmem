@@ -1,9 +1,9 @@
 #include "CommandProcessor.h"
-#include "Utils.h"
 #include "Process.h"
 #include <exception>
 #include <vector>
 #include <fmt/core.h>
+#include <sstream>
 
 #include <unordered_map>
 #include "cmds/ICommand.h"
@@ -37,18 +37,53 @@ static const std::unordered_map<std::string , CmdFuncs> cmdMap =
 };
 
 
+// Source: https://stackoverflow.com/a/58844407
+// Temporary solution, doesn't support quote escaping
+static std::vector<std::string> TokenizeCommand(const std::string& input)
+{
+    std::vector<std::string> tokens;
+
+    unsigned counter = 0;
+    std::string segment;
+    std::stringstream stream_input(input);
+
+    while(std::getline(stream_input, segment, '\"'))
+    {
+        ++counter;
+        if (counter % 2 == 0)
+        {
+            if (!segment.empty())
+            {
+                tokens.push_back(segment);
+            }
+        }
+        else
+        {
+            std::stringstream stream_segment(segment);
+            while(std::getline(stream_segment, segment, ' '))
+            {
+                if (!segment.empty())
+                {
+                    tokens.push_back(segment);
+                }
+            }
+        }
+    }
+    return tokens;
+}
+
 void CommandProcessor::ProcessCommand(std::string &input, Process& proc)
 {
     // Split the input of the user into tokens
-    // tokens[0] is always the command, while the rest of the tokens are arguments
-    std::vector<std::string> tokens = Utils::SplitString(input, ' ');
-    
+    std::vector<std::string> tokens = TokenizeCommand(input);
+
     // Leave if the input is empty
     if (tokens.empty())
     {
         return;
     }
 
+    // tokens[0] is always the command, while the rest of the tokens are arguments
     std::string command = tokens[0];
 
     if (command == "help")

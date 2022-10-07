@@ -11,24 +11,20 @@
 #include "MemoryFuncs.h"
 
 template <typename T>
-std::vector<MemAddress> FindData(const Process& proc, const std::vector<std::string>& args)
+std::vector<MemAddress> FindData(const Process& proc, const std::string& dataStr)
 {
     constexpr unsigned long dataTypeSize = sizeof(T); 
-    T dataValue = Utils::StrToNumber<T>(args[2]);
+    T dataValue = Utils::StrToNumber<T>(dataStr);
     
     return MemoryFuncs::FindDataInMemory<T>(proc.GetCurrentPid(), proc.GetMemoryRegions(), 
             dataTypeSize, &dataValue, ComparisonType::Equal);
 }
 
 template <>
-std::vector<MemAddress> FindData<std::string>(const Process& proc, const std::vector<std::string>& args)
+std::vector<MemAddress> FindData<std::string>(const Process& proc, const std::string& dataStr)
 {
-    // Data starts at index 2
-    const std::string fullString = Utils::JoinVectorOfStrings(args, 2, ' ');    
-    const size_t fullStringLen = fullString.size();
-
     return MemoryFuncs::FindDataInMemory<std::string>(proc.GetCurrentPid(), proc.GetMemoryRegions(),
-            fullStringLen, fullString.c_str(), ComparisonType::Equal);
+            dataStr.size(), dataStr.c_str(), ComparisonType::Equal);
 }
 
 void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
@@ -40,20 +36,21 @@ void FindCommand::Main(Process& proc, const std::vector<std::string>& args)
 
     std::vector<MemAddress> foundAddrs;
     const std::string& typeStr = args[1]; 
+    const std::string& dataStr = args[2];
 
     switch (ParseDataType(typeStr))
     {
-        case DataType::int8:    foundAddrs = FindData<int8_t>(proc, args);      break;
-        case DataType::int16:   foundAddrs = FindData<int16_t>(proc, args);     break;
-        case DataType::int32:   foundAddrs = FindData<int32_t>(proc, args);     break;
-        case DataType::int64:   foundAddrs = FindData<int64_t>(proc, args);     break;
-        case DataType::uint8:   foundAddrs = FindData<uint8_t>(proc, args);     break;
-        case DataType::uint16:  foundAddrs = FindData<uint16_t>(proc, args);    break;
-        case DataType::uint32:  foundAddrs = FindData<uint32_t>(proc, args);    break;
-        case DataType::uint64:  foundAddrs = FindData<uint64_t>(proc, args);    break;
-        case DataType::f32:     foundAddrs = FindData<float>(proc, args);       break;
-        case DataType::f64:     foundAddrs = FindData<double>(proc, args);      break;
-        case DataType::string:  foundAddrs = FindData<std::string>(proc, args); break;
+        case DataType::int8:    foundAddrs = FindData<int8_t>(proc, dataStr);      break;
+        case DataType::int16:   foundAddrs = FindData<int16_t>(proc, dataStr);     break;
+        case DataType::int32:   foundAddrs = FindData<int32_t>(proc, dataStr);     break;
+        case DataType::int64:   foundAddrs = FindData<int64_t>(proc, dataStr);     break;
+        case DataType::uint8:   foundAddrs = FindData<uint8_t>(proc, dataStr);     break;
+        case DataType::uint16:  foundAddrs = FindData<uint16_t>(proc, dataStr);    break;
+        case DataType::uint32:  foundAddrs = FindData<uint32_t>(proc, dataStr);    break;
+        case DataType::uint64:  foundAddrs = FindData<uint64_t>(proc, dataStr);    break;
+        case DataType::f32:     foundAddrs = FindData<float>(proc, dataStr);       break;
+        case DataType::f64:     foundAddrs = FindData<double>(proc, dataStr);      break;
+        case DataType::string:  foundAddrs = FindData<std::string>(proc, dataStr); break;
         // No default: so that the compiler can generate a warning for us in case we forget something.
     }
 

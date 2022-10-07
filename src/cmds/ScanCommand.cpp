@@ -24,21 +24,18 @@ void CallScanner(Process& proc, size_t dataSize, const void* data, ComparisonTyp
 }
 
 template <typename T>
-void ScanForData(Process& proc, const std::vector<std::string>& args, ComparisonType cmpType)
+void ScanForData(Process& proc, const std::string& dataStr, ComparisonType cmpType)
 {
     constexpr size_t dataSize = sizeof(T);
-    T dataValue = Utils::StrToNumber<T>(args[3]);
+    T dataValue = Utils::StrToNumber<T>(dataStr);
 
     CallScanner<T>(proc, dataSize, (void*)&dataValue, cmpType);
 }
 
 template <>
-void ScanForData<std::string>(Process& proc, const std::vector<std::string>& args, ComparisonType cmpType)
+void ScanForData<std::string>(Process& proc, const std::string& dataStr, ComparisonType cmpType)
 {
-    std::string data = Utils::JoinVectorOfStrings(args, 3, ' ');
-    size_t dataSize = data.size();
-
-    CallScanner<std::string>(proc, dataSize, (void*)data.c_str(), cmpType);
+    CallScanner<std::string>(proc, dataStr.size(), (void*)dataStr.c_str(), cmpType);
 }
 
 static void ListSavedAddresses(const std::vector<MemAddress>& memAddrs)
@@ -132,20 +129,21 @@ void ScanCommand::Main(Process& proc, const std::vector<std::string>& args)
             throw std::runtime_error("Missing arguments for scanning.");
         }
 
-        const std::string typeStr = args[2];
+        const std::string& typeStr = args[2];
+        const std::string& dataStr = args[3];
         switch (ParseDataType(typeStr))
         {
-            case DataType::int8:   ScanForData<int8_t>(proc, args, cmpType);      break;
-            case DataType::int16:  ScanForData<int16_t>(proc, args, cmpType);     break;
-            case DataType::int32:  ScanForData<int32_t>(proc, args, cmpType);     break;
-            case DataType::int64:  ScanForData<int64_t>(proc, args, cmpType);     break;
-            case DataType::uint8:  ScanForData<uint8_t>(proc, args, cmpType);     break;
-            case DataType::uint16: ScanForData<uint16_t>(proc, args, cmpType);    break;
-            case DataType::uint32: ScanForData<uint32_t>(proc, args, cmpType);    break;
-            case DataType::uint64: ScanForData<uint64_t>(proc, args, cmpType);    break;
-            case DataType::f32:    ScanForData<float>(proc, args, cmpType);       break;
-            case DataType::f64:    ScanForData<double>(proc, args, cmpType);      break;
-            case DataType::string: ScanForData<std::string>(proc, args, cmpType); break;
+            case DataType::int8:   ScanForData<int8_t>(proc, dataStr, cmpType);      break;
+            case DataType::int16:  ScanForData<int16_t>(proc, dataStr, cmpType);     break;
+            case DataType::int32:  ScanForData<int32_t>(proc, dataStr, cmpType);     break;
+            case DataType::int64:  ScanForData<int64_t>(proc, dataStr, cmpType);     break;
+            case DataType::uint8:  ScanForData<uint8_t>(proc, dataStr, cmpType);     break;
+            case DataType::uint16: ScanForData<uint16_t>(proc, dataStr, cmpType);    break;
+            case DataType::uint32: ScanForData<uint32_t>(proc, dataStr, cmpType);    break;
+            case DataType::uint64: ScanForData<uint64_t>(proc, dataStr, cmpType);    break;
+            case DataType::f32:    ScanForData<float>(proc, dataStr, cmpType);       break;
+            case DataType::f64:    ScanForData<double>(proc, dataStr, cmpType);      break;
+            case DataType::string: ScanForData<std::string>(proc, dataStr, cmpType); break;
         }
     }
 }

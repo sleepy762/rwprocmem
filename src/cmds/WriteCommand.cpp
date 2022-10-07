@@ -7,31 +7,31 @@
 #include "MemoryFuncs.h"
 
 template <typename T>
-void WriteData(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
+void WriteData(pid_t pid, unsigned long baseAddr, const std::string& dataStr)
 {
     // The data is in index 3, according to the syntax
     constexpr long dataTypeSize = sizeof(T);
-    T dataValue = Utils::StrToNumber<T>(args[3]);
+    T dataValue = Utils::StrToNumber<T>(dataStr);
 
     ssize_t nread = MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataTypeSize, &dataValue);
     if (nread != dataTypeSize)
     {
-        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataTypeSize, baseAddr);
+        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n",
+                nread, dataTypeSize, baseAddr);
     }
 }
 
 // Accepts string
 template <>
-void WriteData<std::string>(pid_t pid, unsigned long baseAddr, const std::vector<std::string>& args)
+void WriteData<std::string>(pid_t pid, unsigned long baseAddr, const std::string& dataStr)
 {
-    // Data starts at index 3
-    std::string fullData = Utils::JoinVectorOfStrings(args, 3, ' ');
-    const long dataSize = fullData.size();
+    const long dataStrSize = dataStr.size();
 
-    ssize_t nread = MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataSize, (void*)fullData.c_str());
-    if (nread != dataSize)
+    ssize_t nread = MemoryFuncs::WriteToProcessMemory(pid, baseAddr, dataStrSize, (void*)dataStr.c_str());
+    if (nread != dataStrSize)
     {
-        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n", nread, dataSize, baseAddr);
+        fmt::print("WARNING: Partial write of {}/{} bytes at address {:#018x}.\n",
+                nread, dataStrSize, baseAddr);
     }
 }
 
@@ -47,19 +47,20 @@ void WriteCommand::Main(Process& proc, const std::vector<std::string>& args)
 
     const pid_t pid = proc.GetCurrentPid();
     const std::string& typeStr = args[2];
+    const std::string& dataStr = args[3];
     switch (ParseDataType(typeStr))
     {
-        case DataType::int8:   WriteData<int8_t>(pid, baseAddr, args);      break;
-        case DataType::int16:  WriteData<int16_t>(pid, baseAddr, args);     break;
-        case DataType::int32:  WriteData<int32_t>(pid, baseAddr, args);     break;
-        case DataType::int64:  WriteData<int64_t>(pid, baseAddr, args);     break;
-        case DataType::uint8:  WriteData<uint8_t>(pid, baseAddr, args);     break;
-        case DataType::uint16: WriteData<uint16_t>(pid, baseAddr, args);    break;
-        case DataType::uint32: WriteData<uint32_t>(pid, baseAddr, args);    break;
-        case DataType::uint64: WriteData<uint64_t>(pid, baseAddr, args);    break;
-        case DataType::f32:    WriteData<float>(pid, baseAddr, args);       break;
-        case DataType::f64:    WriteData<double>(pid, baseAddr, args);      break;
-        case DataType::string: WriteData<std::string>(pid, baseAddr, args); break;
+        case DataType::int8:   WriteData<int8_t>(pid, baseAddr, dataStr);      break;
+        case DataType::int16:  WriteData<int16_t>(pid, baseAddr, dataStr);     break;
+        case DataType::int32:  WriteData<int32_t>(pid, baseAddr, dataStr);     break;
+        case DataType::int64:  WriteData<int64_t>(pid, baseAddr, dataStr);     break;
+        case DataType::uint8:  WriteData<uint8_t>(pid, baseAddr, dataStr);     break;
+        case DataType::uint16: WriteData<uint16_t>(pid, baseAddr, dataStr);    break;
+        case DataType::uint32: WriteData<uint32_t>(pid, baseAddr, dataStr);    break;
+        case DataType::uint64: WriteData<uint64_t>(pid, baseAddr, dataStr);    break;
+        case DataType::f32:    WriteData<float>(pid, baseAddr, dataStr);       break;
+        case DataType::f64:    WriteData<double>(pid, baseAddr, dataStr);      break;
+        case DataType::string: WriteData<std::string>(pid, baseAddr, dataStr); break;
         // No default: so that the compiler can generate a warning for us in case we forget something.
     }
 }
