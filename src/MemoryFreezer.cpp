@@ -17,7 +17,7 @@ MemoryFreezer::MemoryFreezer()
 MemoryFreezer::~MemoryFreezer() {}
 
 void MemoryFreezer::AddAddress(MemAddress memAddress, const std::string& typeStr, const std::string& dataStr, 
-        std::vector<uint8_t>& data)
+        std::vector<uint8_t>& data, const std::string& note)
 {
     // Prevent adding read-only addresses
     if (!memAddress.memRegion.perms.writeFlag)
@@ -35,7 +35,7 @@ void MemoryFreezer::AddAddress(MemAddress memAddress, const std::string& typeStr
     }
 
     // Add the address but have it disabled
-    FrozenMemAddress frozenAddr = { memAddress, false, typeStr, dataStr, data };
+    FrozenMemAddress frozenAddr = { memAddress, false, typeStr, dataStr, data, note };
 
     this->m_MemoryFreezerMutex.lock();
 
@@ -57,8 +57,13 @@ void MemoryFreezer::RemoveAddress(size_t index)
 
         this->m_MemoryFreezerMutex.lock();
 
+        // Make sure to decrement the enabled addresses, if the erased address was enabled
+        if (iter->enabled)
+        {
+            this->m_EnabledAddressesAmount -= 1;
+        }
         this->m_FrozenAddresses.erase(iter);
-        this->m_EnabledAddressesAmount -= 1;
+
         // Prevents a possible crash where the thread might attempt to use a deleted iterator
         this->m_FrozenAddressIter = this->m_FrozenAddresses.begin();
 
@@ -151,8 +156,8 @@ void MemoryFreezer::DisableAllAddresses()
     this->m_MemoryFreezerMutex.unlock();
 }
 
-void MemoryFreezer::ModifyAddress(size_t index, const std::string &typeStr, const std::string &dataStr,
-        std::vector<uint8_t> &data)
+void MemoryFreezer::ModifyAddress(size_t index, const std::string& typeStr, const std::string& dataStr,
+        std::vector<uint8_t>& data, const std::string& note)
 {
     if (index >= this->m_FrozenAddresses.size())
     {
@@ -168,6 +173,10 @@ void MemoryFreezer::ModifyAddress(size_t index, const std::string &typeStr, cons
         iter->typeStr = typeStr;
         iter->dataStr = dataStr;
         iter->data = data;
+        if (!note.empty()) // Only replace the note if it is not empty
+        {
+            iter->note = note;
+        }
 
         this->m_MemoryFreezerMutex.unlock();
     }

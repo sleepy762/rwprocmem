@@ -40,13 +40,20 @@ static void ListFrozenMemoryAddresses(const std::list<FrozenMemAddress>& frozenA
     int index = 0;
     for (auto it = frozenAddrs.cbegin(); it != frozenAddrs.cend(); it++)
     {
-        fmt::print("[{:{}}][{}] {:#018x} (in {}) [{}: {}]\n",
+        fmt::print("[{:{}}][{}] {:#018x} (in {}) [{}: {}]",
             index, indexWidth,
             it->enabled ? 'X' : ' ', // If the address is enabled, mark it with an X
             it->memAddress.address,
             it->memAddress.memRegion.pathName,
             it->typeStr,
             it->dataStr);
+            
+        if (!it->note.empty())
+        {
+            fmt::print(" Note: \"{}\"", it->note);
+        }
+
+        fmt::print("\n");
         index++;
     }
 }
@@ -128,23 +135,31 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
             throw std::runtime_error("Missing arguments.");
         }
 
+        std::string note = "";
+        try
+        {
+            note = args.at(5);
+        }
+        // The error can be ignored since the note argument is optional
+        catch (const std::out_of_range&) {}
+
         const std::string& typeStr = args[3];
         const std::string& dataStr = args[4];
-        std::vector<uint8_t> dataVector;
+        std::vector<uint8_t> byteVector;
 
         switch (ParseDataType(typeStr))
         {
-            case DataType::int8:   dataVector = DataToByteVector<int8_t>(dataStr);      break;
-            case DataType::int16:  dataVector = DataToByteVector<int16_t>(dataStr);     break;
-            case DataType::int32:  dataVector = DataToByteVector<int32_t>(dataStr);     break;
-            case DataType::int64:  dataVector = DataToByteVector<int64_t>(dataStr);     break;
-            case DataType::uint8:  dataVector = DataToByteVector<uint8_t>(dataStr);     break;
-            case DataType::uint16: dataVector = DataToByteVector<uint16_t>(dataStr);    break;
-            case DataType::uint32: dataVector = DataToByteVector<uint32_t>(dataStr);    break;
-            case DataType::uint64: dataVector = DataToByteVector<uint64_t>(dataStr);    break;
-            case DataType::f32:    dataVector = DataToByteVector<float>(dataStr);       break;
-            case DataType::f64:    dataVector = DataToByteVector<double>(dataStr);      break;
-            case DataType::string: dataVector = DataToByteVector<std::string>(dataStr); break;
+            case DataType::int8:   byteVector = DataToByteVector<int8_t>(dataStr);      break;
+            case DataType::int16:  byteVector = DataToByteVector<int16_t>(dataStr);     break;
+            case DataType::int32:  byteVector = DataToByteVector<int32_t>(dataStr);     break;
+            case DataType::int64:  byteVector = DataToByteVector<int64_t>(dataStr);     break;
+            case DataType::uint8:  byteVector = DataToByteVector<uint8_t>(dataStr);     break;
+            case DataType::uint16: byteVector = DataToByteVector<uint16_t>(dataStr);    break;
+            case DataType::uint32: byteVector = DataToByteVector<uint32_t>(dataStr);    break;
+            case DataType::uint64: byteVector = DataToByteVector<uint64_t>(dataStr);    break;
+            case DataType::f32:    byteVector = DataToByteVector<float>(dataStr);       break;
+            case DataType::f64:    byteVector = DataToByteVector<double>(dataStr);      break;
+            case DataType::string: byteVector = DataToByteVector<std::string>(dataStr); break;
         }
 
         if (keywordStr == "add")
@@ -153,13 +168,13 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
             MemRegion memRegion = Utils::FindRegionOfAddress(proc.GetMemoryRegions(), address);
             MemAddress memAddress = { address, memRegion };
 
-            memFreezer.AddAddress(memAddress, typeStr, dataStr, dataVector);
+            memFreezer.AddAddress(memAddress, typeStr, dataStr, byteVector, note);
         }
         else if (keywordStr == "modify")
         {
             size_t index = Utils::StrToNumber<size_t>(args[2], "index");
 
-            memFreezer.ModifyAddress(index, typeStr, dataStr, dataVector);
+            memFreezer.ModifyAddress(index, typeStr, dataStr, byteVector, note);
         }
     }
     else
@@ -185,8 +200,10 @@ std::string FreezeCommand::Help()
         "disable <index/all> -- Disables the program from freezing the address in the given index, or all addresses.\n\n"
 
         "Keywords that require 3 arguments:\n"
-        "add <address> <type> <data> -- Adds the address to the freezing list which will write <data> to <address> continuously."
-            "\n\tWhen addresses are added, they are disabled and have to be enabled manually.\n"
-        "modify <index> <type> <data> -- Modifies an existing address by changing the <type> and <data>.\n");
+        "add <address> <type> <data> [note] -- Adds the address to the freezing list which will write <data> to <address> continuously.\n"
+            "\tWhen addresses are added, they are disabled and have to be enabled manually.\n"
+            "\tA note is an optional string that will appear next to the address in the freeze list.\n"
+        "modify <index> <type> <data> [note] -- Modifies an existing address by changing the <type> and <data>.\n"
+            "\tPassing a new note will overwrite the old note, otherwise the old note will stay.\n");
 }
 
