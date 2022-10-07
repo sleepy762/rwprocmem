@@ -92,16 +92,19 @@ void MemoryFreezer::EnableAddress(size_t index)
         auto iter = this->m_FrozenAddresses.begin();
         std::advance(iter, index);
 
-        this->m_MemoryFreezerMutex.lock();
+        if (!iter->enabled)
+        {
+            this->m_MemoryFreezerMutex.lock();
 
-        iter->enabled = true;
-        this->m_EnabledAddressesAmount += 1;
+            iter->enabled = true;
+            this->m_EnabledAddressesAmount += 1;
 
-        this->m_MemoryFreezerMutex.unlock();
+            this->m_MemoryFreezerMutex.unlock();
 
-        // We may need to start/restart the thread if there were no addresses before
-        // and a new address was added now
-        this->StartThreadLoopIfNeeded();
+            // We may need to start/restart the thread if there were no addresses before
+            // and a new address was added now
+            this->StartThreadLoopIfNeeded();
+        }
     }
 }
 
@@ -116,12 +119,15 @@ void MemoryFreezer::DisableAddress(size_t index)
         auto iter = this->m_FrozenAddresses.begin();
         std::advance(iter, index);
 
-        this->m_MemoryFreezerMutex.lock();
+        if (iter->enabled)
+        {
+            this->m_MemoryFreezerMutex.lock();
 
-        iter->enabled = false;
-        this->m_EnabledAddressesAmount -= 1;
+            this->m_EnabledAddressesAmount -= 1;
+            iter->enabled = false;
 
-        this->m_MemoryFreezerMutex.unlock();
+            this->m_MemoryFreezerMutex.unlock();
+        }
     }
 }
 
@@ -179,6 +185,15 @@ void MemoryFreezer::ModifyAddress(size_t index, const std::string& typeStr, cons
         }
 
         this->m_MemoryFreezerMutex.unlock();
+    }
+}
+
+void MemoryFreezer::ModifyAllAddresses(const std::string& typeStr, const std::string& dataStr,
+        std::vector<uint8_t>& data, const std::string& note)
+{
+    for (size_t i = 0; i < this->m_FrozenAddresses.size(); i++)
+    {
+        this->ModifyAddress(i, typeStr, dataStr, data, note);
     }
 }
 

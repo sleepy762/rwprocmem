@@ -172,9 +172,15 @@ void FreezeCommand::Main(Process& proc, const std::vector<std::string>& args)
         }
         else if (keywordStr == "modify")
         {
-            size_t index = Utils::StrToNumber<size_t>(args[2], "index");
-
-            memFreezer.ModifyAddress(index, typeStr, dataStr, byteVector, note);
+            if (args[2] == "all") // Modify all addresses
+            {
+                memFreezer.ModifyAllAddresses(typeStr, dataStr, byteVector, note);
+            }
+            else // Modify an address in a specific index
+            {
+                size_t index = Utils::StrToNumber<size_t>(args[2], "index");
+                memFreezer.ModifyAddress(index, typeStr, dataStr, byteVector, note);
+            }
         }
     }
     else
@@ -203,7 +209,7 @@ std::string FreezeCommand::Help()
         "add <address> <type> <data> [note] -- Adds the address to the freezing list which will write <data> to <address> continuously.\n"
             "\tWhen addresses are added, they are disabled and have to be enabled manually.\n"
             "\tA note is an optional string that will appear next to the address in the freeze list.\n"
-        "modify <index> <type> <data> [note] -- Modifies an existing address by changing the <type> and <data>.\n"
+        "modify <index/all> <type> <data> [note] -- Modifies an existing address by changing the <type> and <data>.\n"
             "\tPassing a new note will overwrite the old note, otherwise the old note will stay.\n");
 }
 

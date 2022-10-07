@@ -36,6 +36,8 @@ public:
 
     void ModifyAddress(size_t index, const std::string& typeStr, const std::string& dataStr,
             std::vector<uint8_t>& data, const std::string& note);
+    void ModifyAllAddresses(const std::string& typeStr, const std::string& dataStr,
+            std::vector<uint8_t>& data, const std::string& note);
 
     const std::list<FrozenMemAddress>& GetFrozenAddresses() const;
     int GetEnabledAddressesAmount() const;
