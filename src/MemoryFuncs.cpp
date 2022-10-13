@@ -1,7 +1,7 @@
 #include "MemoryFuncs.h"
-#include <memory>
 #include <sys/uio.h>
 #include <fmt/core.h>
+#include <vector>
 
 // Returns an error message when process_vm_readv/process_vm_writev fail
 // Parameter expects errno
@@ -42,10 +42,11 @@ static std::string GetErrorMessage(int err)
 // TODO: create a ptrace alternative for both read and write functions
 std::vector<uint8_t> MemoryFuncs::ReadProcessMemory(pid_t pid, unsigned long baseAddr, long length)
 {
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
+    // Creates a vector of the size given in `length`
+    std::vector<uint8_t> buffer(length);
 
     iovec local[1];
-    local[0].iov_base = buffer.get();
+    local[0].iov_base = &buffer[0]; // Pass a pointer to the beginning of the buffer
     local[0].iov_len = length;
 
     iovec remote[1];
@@ -58,12 +59,7 @@ std::vector<uint8_t> MemoryFuncs::ReadProcessMemory(pid_t pid, unsigned long bas
         throw std::runtime_error(GetErrorMessage(errno));
     }
 
-    std::vector<uint8_t> dataVec;
-    // Copy the data given from process_vm_readv into the byte vector
-    uint8_t* bufferPtr = buffer.get();
-    dataVec.insert(dataVec.end(), &bufferPtr[0], &bufferPtr[nread]);
-
-    return dataVec;
+    return buffer;
 }
 
 ssize_t MemoryFuncs::WriteToProcessMemory(pid_t pid, unsigned long baseAddr, long dataSize, void* data)
