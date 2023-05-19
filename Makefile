@@ -12,7 +12,7 @@ all: $(OBJS) $(TARGET)
 
 # Links the object files into an executable
 $(TARGET): $(OBJS)
-	$(LD) $(LDFLAGS) $^ -o $@
+	$(LD) $^ $(LDFLAGS) -o $@
 
 # Compiles every source file into an object file
 %.o: %.cpp
